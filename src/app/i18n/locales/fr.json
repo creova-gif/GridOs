@@ -1,0 +1,131 @@
+{
+  "nav": {
+    "dashboard": "Tableau de bord",
+    "meters": "Compteurs",
+    "alerts": "Alertes",
+    "analytics": "Analytique",
+    "ai": "Analyses IA",
+    "reports": "Rapports RBF",
+    "planning": "Planification"
+  },
+  "dashboard": {
+    "title": "Vue d'ensemble",
+    "connected_meters": "Compteurs connectés",
+    "current_load": "Charge actuelle",
+    "zero_balance": "Solde zéro",
+    "revenue_24h": "Revenus (24h)",
+    "live_load": "Graphique de charge",
+    "recent_alerts": "Alertes récentes",
+    "meter_status": "État des compteurs"
+  },
+  "meters": {
+    "title": "Compteurs",
+    "table": {
+      "meter_id": "ID compteur",
+      "customer": "Client",
+      "type": "Type",
+      "status": "État",
+      "power": "Puissance",
+      "balance": "Solde",
+      "signal": "Signal"
+    },
+    "status": {
+      "active": "Actif",
+      "off": "Éteint",
+      "tamper": "Altéré"
+    },
+    "types": {
+      "residential": "Résidentiel",
+      "business": "Commercial",
+      "productive": "Productif",
+      "institutional": "Institutionnel"
+    }
+  },
+  "alerts": {
+    "title": "Alertes",
+    "severity": {
+      "critical": "Critique",
+      "high": "Élevé",
+      "medium": "Moyen",
+      "low": "Faible"
+    },
+    "types": {
+      "low_credit": "Crédit faible",
+      "disconnection": "Déconnexion",
+      "tamper_detected": "Altération détectée",
+      "high_load": "Charge élevée"
+    }
+  },
+  "analytics": {
+    "title": "Analyse des revenus",
+    "metrics": {
+      "arpu": "ARPU",
+      "collection_rate": "Taux de collecte",
+      "energy_sold": "Énergie vendue"
+    },
+    "weekly_revenue": "Revenus hebdomadaires"
+  },
+  "ai": {
+    "title": "Analyses IA",
+    "forecast": {
+      "title": "Prévision de charge",
+      "24h": "Prévision 24h",
+      "7d": "Prévision 7 jours",
+      "peak_load": "Charge de pointe",
+      "total_energy": "Énergie totale"
+    },
+    "credit_scores": {
+      "title": "Scores de crédit",
+      "excellent": "Excellent",
+      "good": "Bon",
+      "fair": "Moyen",
+      "poor": "Faible",
+      "very_poor": "Très faible"
+    },
+    "site_health": {
+      "title": "Santé du site",
+      "score": "Score de santé",
+      "status": "État",
+      "generation": "Génération",
+      "meters": "Compteurs",
+      "alerts": "Alertes"
+    },
+    "tou": {
+      "title": "Tarification horaire",
+      "current_tariff": "Tarif actuel",
+      "peak": "Pointe",
+      "off_peak": "Heures creuses",
+      "solar_peak": "Pointe solaire"
+    }
+  },
+  "reports": {
+    "title": "Rapports RBF",
+    "rea": "REA Tanzanie",
+    "worldbank": "Banque mondiale",
+    "ewura": "EWURA",
+    "carbon": "Crédits carbone",
+    "productive_use": "Usage productif",
+    "generate": "Générer un rapport",
+    "download": "Télécharger"
+  },
+  "planning": {
+    "title": "Planification de site",
+    "score_location": "Évaluer l'emplacement",
+    "population": "Population",
+    "solar_resource": "Ressource solaire",
+    "viability": "Viabilité",
+    "excellent": "Excellent",
+    "good": "Bon",
+    "marginal": "Marginal",
+    "poor": "Faible"
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Erreur",
+    "refresh": "Actualiser",
+    "export": "Exporter",
+    "close": "Fermer",
+    "save": "Enregistrer",
+    "cancel": "Annuler"
+  }
+}

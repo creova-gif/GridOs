@@ -1,0 +1,319 @@
+@custom-variant dark (&:is(.dark *));
+
+/**
+ * GridOS Design System v1.0 MVP
+ * Color tokens from Figma spec
+ * Mini-Grid Management Platform · East Africa
+ */
+
+:root {
+  /* === GridOS Color Tokens (EXACT from gridios-ui.html) === */
+  /* Background colors */
+  --bg-primary: #060d18;        /* Page background - dark navy (was #080f1e) */
+  --bg-card: #0a1628;           /* Card surfaces (was #0f1a2e) */
+  --bg-surface: #0f1e35;        /* Input + hover (was #1a2740) */
+  --bg-elevated: #152540;       /* Elevated surfaces (was #152238) */
+  
+  /* Border opacity layers */
+  --bg-border-subtle: rgba(255,255,255,.04);  /* Subtle borders */
+  --bg-border-mid: rgba(255,255,255,.08);     /* Mid borders */
+  --bg-border-strong: rgba(255,255,255,.14);  /* Strong borders */
+  
+  /* Text colors */
+  --text-primary: #eef2ff;      /* Headlines - white/primary (was #f1f5f9) */
+  --text-muted: #8a9bbf;        /* Body + labels (was #94a3b8) */
+  --text-faint: #3d5068;        /* Captions (was #475569) */
+  --text-dim: #1e2d42;          /* Extra dim text */
+  
+  /* Brand colors */
+  --brand-emerald: #00d97e;     /* Primary brand - emerald green (was #10b981) */
+  --brand-dim: rgba(0,217,126,.08);    /* Emerald bg tint (was #064e3b) */
+  --brand-glow: rgba(0,217,126,.18);   /* Emerald glow effect */
+  --brand-pale: #d1fae5;        /* Emerald text on dark */
+  
+  /* Status colors */
+  --status-info: #4d9fff;       /* Info / load - blue (was #378ADD) */
+  --status-warn: #f5a623;       /* Warning - orange (was #EF9F27) */
+  --status-danger: #ff4d4f;     /* Error / alert - red (was #E24B4A) */
+  
+  /* === Spacing Scale === */
+  --space-1: 4px;    /* 4px */
+  --space-2: 8px;    /* 8px */
+  --space-3: 12px;   /* 12px */
+  --space-4: 16px;   /* 16px */
+  --space-5: 20px;   /* 20px */
+  --space-6: 24px;   /* 24px */
+  --space-8: 32px;   /* 32px */
+  --space-10: 40px;  /* 40px */
+  --space-12: 48px;  /* 48px */
+  --space-16: 64px;  /* 64px */
+  
+  /* === Border Radius === */
+  --radius-none: 0;
+  --radius-input: 4px;    /* Inputs */
+  --radius-badge: 6px;    /* Badges */
+  --radius-card: 8px;     /* Cards */
+  --radius-modal: 12px;   /* Modals */
+  
+  /* Additional radii for UI components */
+  --radius: 6px;          /* Default radius */
+  --radius-sm: 4px;       /* Small radius */
+  --radius-md: 8px;       /* Medium radius */
+  --radius-lg: 12px;      /* Large radius */
+  --radius-pill: 999px;   /* Pill/rounded */
+  
+  /* === Additional Tokens === */
+  /* Extended palette */
+  --emerald: #10b981;
+  --emerald-dim: rgba(16, 185, 129, 0.1);
+  --amber: #f59e0b;
+  --amber-dim: rgba(245, 158, 11, 0.1);
+  --red: #ef4444;
+  --red-dim: rgba(239, 68, 68, 0.1);
+  --blue: #3b82f6;
+  --blue-dim: rgba(59, 130, 246, 0.1);
+  
+  /* Text hierarchy */
+  --text-1: var(--text-primary);
+  --text-2: var(--text-muted);
+  --text-3: var(--text-faint);
+  --text-4: #334155;
+  
+  /* Borders */
+  --border: var(--bg-border-subtle);
+  --border-mid: var(--bg-border-mid);
+  
+  /* Fonts */
+  --font-body: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-head: 'Syne', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-mono: 'DM Mono', ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, Consolas, 'Courier New', monospace;
+  
+  /* Timing */
+  --dur-fast: 0.15s;
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
+  
+  /* === Typography === */
+  --font-size: 16px;
+  --text-display: 36px;   /* Display / H1 */
+  --text-h2: 24px;        /* H2 Section */
+  --text-h3: 18px;        /* H3 Sub-header */
+  --text-body: 14px;      /* Body default */
+  --text-small: 12px;     /* Body small */
+  --text-label: 10px;     /* Label / badge */
+  --text-caption: 9px;    /* Caption / mono */
+  
+  --font-weight-bold: 700;
+  --font-weight-medium: 500;
+  --font-weight-regular: 400;
+  
+  /* === Legacy Tailwind Compatibility === */
+  --background: #060d18;
+  --foreground: #eef2ff;
+  --card: #0a1628;
+  --card-foreground: #eef2ff;
+  --popover: #0a1628;
+  --popover-foreground: #eef2ff;
+  --primary: #00d97e;
+  --primary-foreground: #ffffff;
+  --secondary: #0f1e35;
+  --secondary-foreground: #eef2ff;
+  --muted: #3d5068;
+  --muted-foreground: #8a9bbf;
+  --accent: #4d9fff;
+  --accent-foreground: #ffffff;
+  --destructive: #ff4d4f;
+  --destructive-foreground: #ffffff;
+  --border: rgba(255,255,255,.04);
+  --input: transparent;
+  --input-background: #0f1e35;
+  --switch-background: #3d5068;
+  --ring: rgba(255,255,255,.08);
+  
+  --chart-1: #00d97e;  /* Emerald */
+  --chart-2: #4d9fff;  /* Blue */
+  --chart-3: #f5a623;  /* Orange */
+  --chart-4: #ff4d4f;  /* Red */
+  --chart-5: #8a9bbf;  /* Gray */
+  
+  --radius: 0.5rem;
+  
+  --sidebar: #0a1628;
+  --sidebar-foreground: #eef2ff;
+  --sidebar-primary: #00d97e;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #0f1e35;
+  --sidebar-accent-foreground: #eef2ff;
+  --sidebar-border: rgba(255,255,255,.04);
+  --sidebar-ring: rgba(255,255,255,.08);
+}
+
+@theme inline {
+  /* GridOS color utilities */
+  --color-bg-primary: var(--bg-primary);
+  --color-bg-card: var(--bg-card);
+  --color-bg-surface: var(--bg-surface);
+  --color-bg-border-subtle: var(--bg-border-subtle);
+  --color-bg-border-mid: var(--bg-border-mid);
+  
+  --color-text-primary: var(--text-primary);
+  --color-text-muted: var(--text-muted);
+  --color-text-faint: var(--text-faint);
+  
+  --color-brand-emerald: var(--brand-emerald);
+  --color-brand-dim: var(--brand-dim);
+  --color-brand-pale: var(--brand-pale);
+  
+  --color-status-info: var(--status-info);
+  --color-status-warn: var(--status-warn);
+  --color-status-danger: var(--status-danger);
+  
+  /* Tailwind compatibility */
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-input-background: var(--input-background);
+  --color-switch-background: var(--switch-background);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: var(--font-body);
+  }
+
+  /**
+   * GridOS Typography System
+   * Heading font: "Syne" (bold, display)
+   * Body font: "DM Sans" (readable, clean)
+   * Monospace: "DM Mono" (technical data)
+   */
+
+  html {
+    font-size: var(--font-size);
+  }
+
+  h1 {
+    font-family: var(--font-head);
+    font-size: var(--text-display);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.2;
+    letter-spacing: -0.02em;
+  }
+
+  h2 {
+    font-family: var(--font-head);
+    font-size: var(--text-h2);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.3;
+  }
+
+  h3 {
+    font-family: var(--font-head);
+    font-size: var(--text-h3);
+    font-weight: var(--font-weight-bold);
+    line-height: 1.4;
+  }
+
+  h4 {
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  p {
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.5;
+  }
+
+  label {
+    font-size: var(--text-label);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  button {
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-medium);
+    line-height: 1.5;
+  }
+
+  input, textarea, select {
+    font-size: var(--text-body);
+    font-weight: var(--font-weight-regular);
+    line-height: 1.5;
+  }
+  
+  code, pre {
+    font-family: 'JetBrains Mono', 'Consolas', monospace;
+    font-size: var(--text-caption);
+  }
+}
+
+/* === Animations === */
+@keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s var(--ease);
+}
+
+.animate-fadeUp {
+  animation: fadeUp 0.3s var(--ease);
+}

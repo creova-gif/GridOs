@@ -1,0 +1,131 @@
+{
+  "nav": {
+    "dashboard": "Dashibodi",
+    "meters": "Mita",
+    "alerts": "Arifa",
+    "analytics": "Takwimu",
+    "ai": "Uchambuzi wa AI",
+    "reports": "Ripoti za RBF",
+    "planning": "Mpango wa Tovuti"
+  },
+  "dashboard": {
+    "title": "Muhtasari wa Tovuti",
+    "connected_meters": "Mita Zilizounganishwa",
+    "current_load": "Mzigo wa Sasa",
+    "zero_balance": "Salio la Sifuri",
+    "revenue_24h": "Mapato (Masaa 24)",
+    "live_load": "Chati ya Mzigo Hai",
+    "recent_alerts": "Arifa za Hivi Karibuni",
+    "meter_status": "Hali ya Mita"
+  },
+  "meters": {
+    "title": "Mita",
+    "table": {
+      "meter_id": "Nambari ya Mita",
+      "customer": "Mteja",
+      "type": "Aina",
+      "status": "Hali",
+      "power": "Nguvu",
+      "balance": "Salio",
+      "signal": "Ishara"
+    },
+    "status": {
+      "active": "Inatumika",
+      "off": "Imezimwa",
+      "tamper": "Imeingiliwa"
+    },
+    "types": {
+      "residential": "Makazi",
+      "business": "Biashara",
+      "productive": "Uzalishaji",
+      "institutional": "Taasisi"
+    }
+  },
+  "alerts": {
+    "title": "Arifa",
+    "severity": {
+      "critical": "Hatari Sana",
+      "high": "Juu",
+      "medium": "Wastani",
+      "low": "Chini"
+    },
+    "types": {
+      "low_credit": "Mkopo wa Chini",
+      "disconnection": "Kukatwa",
+      "tamper_detected": "Uingiliaji Umegundulika",
+      "high_load": "Mzigo Mzito"
+    }
+  },
+  "analytics": {
+    "title": "Uchambuzi wa Mapato",
+    "metrics": {
+      "arpu": "ARPU",
+      "collection_rate": "Kiwango cha Ukusanyaji",
+      "energy_sold": "Nishati Iliyouzwa"
+    },
+    "weekly_revenue": "Mapato ya Wiki"
+  },
+  "ai": {
+    "title": "Maarifa ya AI",
+    "forecast": {
+      "title": "Utabiri wa Mzigo",
+      "24h": "Utabiri wa Masaa 24",
+      "7d": "Utabiri wa Siku 7",
+      "peak_load": "Mzigo wa Kilele",
+      "total_energy": "Jumla ya Nishati"
+    },
+    "credit_scores": {
+      "title": "Alama za Mkopo",
+      "excellent": "Bora Sana",
+      "good": "Nzuri",
+      "fair": "Wastani",
+      "poor": "Mbaya",
+      "very_poor": "Mbaya Sana"
+    },
+    "site_health": {
+      "title": "Afya ya Tovuti",
+      "score": "Alama ya Afya",
+      "status": "Hali",
+      "generation": "Uzalishaji",
+      "meters": "Mita",
+      "alerts": "Arifa"
+    },
+    "tou": {
+      "title": "Bei ya Wakati wa Matumizi",
+      "current_tariff": "Bei ya Sasa",
+      "peak": "Kilele",
+      "off_peak": "Nje ya Kilele",
+      "solar_peak": "Kilele cha Jua"
+    }
+  },
+  "reports": {
+    "title": "Ripoti za RBF",
+    "rea": "REA Tanzania",
+    "worldbank": "Benki ya Dunia",
+    "ewura": "EWURA",
+    "carbon": "Mikopo ya Kaboni",
+    "productive_use": "Matumizi ya Uzalishaji",
+    "generate": "Tengeneza Ripoti",
+    "download": "Pakua"
+  },
+  "planning": {
+    "title": "Mpango wa Tovuti",
+    "score_location": "Pima Eneo",
+    "population": "Idadi ya Watu",
+    "solar_resource": "Rasilimali ya Jua",
+    "viability": "Uwezekano",
+    "excellent": "Bora Sana",
+    "good": "Nzuri",
+    "marginal": "Wastani",
+    "poor": "Mbaya"
+  },
+  "common": {
+    "loading": "Inapakia...",
+    "error": "Hitilafu",
+    "refresh": "Onyesha Upya",
+    "export": "Hamisha",
+    "close": "Funga",
+    "save": "Hifadhi",
+    "cancel": "Ghairi"
+  }
+}

@@ -1,0 +1,114 @@
+/* =============================================================
+   GridOS — Global Design System
+   Aesthetic: Industrial precision. East Africa energy infrastructure.
+   Font: DM Mono (numbers/data) + Syne (headings) + DM Sans (body)
+   Palette: Deep navy base · Emerald green accent · Amber warnings
+   Character: Dense data, clean hierarchy, purposeful motion
+   ============================================================= */
+
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@500;600;700&family=DM+Sans:wght@300;400;500&family=DM+Mono:wght@400;500&display=swap');
+
+:root {
+  /* Brand */
+  --emerald:      #10b981;
+  --emerald-dim:  #052e1c;
+  --emerald-glow: rgba(16,185,129,.12);
+  --amber:        #f59e0b;
+  --amber-dim:    #2d1f00;
+  --red:          #ef4444;
+  --red-dim:      #2d0a0a;
+  --blue:         #3b82f6;
+  --blue-dim:     #0d1f3c;
+
+  /* Surface */
+  --bg:           #070d1a;
+  --bg-card:      #0c1525;
+  --bg-surface:   #111d30;
+  --bg-elevated:  #162035;
+  --border:       rgba(255,255,255,.06);
+  --border-mid:   rgba(255,255,255,.10);
+  --border-hi:    rgba(255,255,255,.16);
+
+  /* Text */
+  --text-1:       #f0f4ff;
+  --text-2:       #8a9bbf;
+  --text-3:       #445570;
+  --text-4:       #2a3650;
+
+  /* Typography */
+  --font-head:    'Syne', sans-serif;
+  --font-body:    'DM Sans', sans-serif;
+  --font-mono:    'DM Mono', monospace;
+
+  /* Layout */
+  --sidebar-w:    220px;
+  --radius:       8px;
+  --radius-lg:    12px;
+  --radius-pill:  999px;
+
+  /* Motion */
+  --ease:         cubic-bezier(.16,1,.3,1);
+  --dur-fast:     120ms;
+  --dur-mid:      220ms;
+  --dur-slow:     400ms;
+}
+
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+html { font-size: 14px; -webkit-font-smoothing: antialiased; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--bg);
+  color: var(--text-1);
+  line-height: 1.5;
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; height: 4px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--border-mid); border-radius: 99px; }
+
+/* Selection */
+::selection { background: var(--emerald-glow); }
+
+/* Focus */
+:focus-visible { outline: 2px solid var(--emerald); outline-offset: 2px; }
+
+/* Inputs */
+input, select, textarea {
+  font-family: var(--font-body);
+  font-size: 13px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-mid);
+  color: var(--text-1);
+  border-radius: var(--radius);
+  padding: 8px 12px;
+  transition: border-color var(--dur-fast) var(--ease);
+  width: 100%;
+}
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  border-color: var(--emerald);
+}
+
+/* Buttons */
+button {
+  font-family: var(--font-body);
+  cursor: pointer;
+  transition: all var(--dur-fast) var(--ease);
+}
+button:active { transform: scale(.97); }
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(10px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+@keyframes pulse-dot {
+  0%,100% { opacity:1; transform:scale(1); }
+  50%      { opacity:.5; transform:scale(.85); }
+}
+@keyframes spin { to { transform:rotate(360deg); } }
+@keyframes counter { from { opacity:0; } to { opacity:1; } }

@@ -1,0 +1,131 @@
+{
+  "nav": {
+    "dashboard": "Dashboard",
+    "meters": "Meters",
+    "alerts": "Alerts",
+    "analytics": "Analytics",
+    "ai": "AI Insights",
+    "reports": "RBF Reports",
+    "planning": "Site Planning"
+  },
+  "dashboard": {
+    "title": "Site Overview",
+    "connected_meters": "Connected Meters",
+    "current_load": "Current Load",
+    "zero_balance": "Zero Balance",
+    "revenue_24h": "Revenue (24h)",
+    "live_load": "Live Load Chart",
+    "recent_alerts": "Recent Alerts",
+    "meter_status": "Meter Status"
+  },
+  "meters": {
+    "title": "Meters",
+    "table": {
+      "meter_id": "Meter ID",
+      "customer": "Customer",
+      "type": "Type",
+      "status": "Status",
+      "power": "Power",
+      "balance": "Balance",
+      "signal": "Signal"
+    },
+    "status": {
+      "active": "Active",
+      "off": "Off",
+      "tamper": "Tamper"
+    },
+    "types": {
+      "residential": "Residential",
+      "business": "Business",
+      "productive": "Productive",
+      "institutional": "Institutional"
+    }
+  },
+  "alerts": {
+    "title": "Alerts",
+    "severity": {
+      "critical": "Critical",
+      "high": "High",
+      "medium": "Medium",
+      "low": "Low"
+    },
+    "types": {
+      "low_credit": "Low Credit",
+      "disconnection": "Disconnection",
+      "tamper_detected": "Tamper Detected",
+      "high_load": "High Load"
+    }
+  },
+  "analytics": {
+    "title": "Revenue Analytics",
+    "metrics": {
+      "arpu": "ARPU",
+      "collection_rate": "Collection Rate",
+      "energy_sold": "Energy Sold"
+    },
+    "weekly_revenue": "Weekly Revenue"
+  },
+  "ai": {
+    "title": "AI Insights",
+    "forecast": {
+      "title": "Load Forecast",
+      "24h": "24-Hour Forecast",
+      "7d": "7-Day Forecast",
+      "peak_load": "Peak Load",
+      "total_energy": "Total Energy"
+    },
+    "credit_scores": {
+      "title": "Credit Scores",
+      "excellent": "Excellent",
+      "good": "Good",
+      "fair": "Fair",
+      "poor": "Poor",
+      "very_poor": "Very Poor"
+    },
+    "site_health": {
+      "title": "Site Health",
+      "score": "Health Score",
+      "status": "Status",
+      "generation": "Generation",
+      "meters": "Meters",
+      "alerts": "Alerts"
+    },
+    "tou": {
+      "title": "Time-of-Use Pricing",
+      "current_tariff": "Current Tariff",
+      "peak": "Peak",
+      "off_peak": "Off-Peak",
+      "solar_peak": "Solar Peak"
+    }
+  },
+  "reports": {
+    "title": "RBF Reports",
+    "rea": "REA Tanzania",
+    "worldbank": "World Bank",
+    "ewura": "EWURA",
+    "carbon": "Carbon Credits",
+    "productive_use": "Productive Use",
+    "generate": "Generate Report",
+    "download": "Download"
+  },
+  "planning": {
+    "title": "Site Planning",
+    "score_location": "Score Location",
+    "population": "Population",
+    "solar_resource": "Solar Resource",
+    "viability": "Viability",
+    "excellent": "Excellent",
+    "good": "Good",
+    "marginal": "Marginal",
+    "poor": "Poor"
+  },
+  "common": {
+    "loading": "Loading...",
+    "error": "Error",
+    "refresh": "Refresh",
+    "export": "Export",
+    "close": "Close",
+    "save": "Save",
+    "cancel": "Cancel"
+  }
+}

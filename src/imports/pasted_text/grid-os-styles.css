@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>GridOS — Mini-Grid Management</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@600;700&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#060d18;--card:#0a1628;--surf:#0f1e35;--elev:#152540;
+  --b0:rgba(255,255,255,.04);--b1:rgba(255,255,255,.08);--b2:rgba(255,255,255,.14);
+  --em:#00d97e;--em-d:rgba(0,217,126,.08);--em-g:rgba(0,217,126,.18);
+  --wa:#f5a623;--da:#ff4d4f;--in:#4d9fff;
+  --t1:#eef2ff;--t2:#8a9bbf;--t3:#3d5068;--t4:#1e2d42;
+  --fh:'Syne',sans-serif;--fb:'DM Sans',sans-serif;--fm:'DM Mono',monospace;
+}
+html,body{height:100%;overflow:hidden;font-family:var(--fb);background:var(--bg);color:var(--t1);font-size:13px;-webkit-font-smoothing:antialiased}
+.shell{display:flex;height:100vh}
+
+/* ── SIDEBAR ── */
+.sb{width:200px;background:var(--card);border-right:1px solid var(--b0);display:flex;flex-direction:column;flex-shrink:0}
+.sb-hd{padding:16px 14px 12px;border-bottom:1px solid var(--b0)}
+.logo{display:flex;align-items:center;gap:8px;margin-bottom:6px}
+.lm{width:30px;height:30px;background:var(--em);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:var(--fm);font-size:14px;font-weight:600;color:#000}
+.ln{font-family:var(--fh);font-size:15px;font-weight:700;letter-spacing:-.3px}
+.site{font-size:10px;color:var(--t3);margin-bottom:5px}
+.live-r{display:flex;align-items:center;gap:5px}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--em);animation:pulse 2s infinite;flex-shrink:0}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+.live-t{font-size:9px;color:var(--t3)}
+.nav{flex:1;padding:7px 7px;overflow-y:auto;scrollbar-width:none}
+.nav::-webkit-scrollbar{display:none}
+.ni{display:flex;align-items:center;gap:8px;padding:8px 9px;border-radius:7px;font-size:12px;color:var(--t3);cursor:pointer;border-left:2px solid transparent;transition:all .1s;margin-bottom:1px;user-select:none;white-space:nowrap}
+.ni:hover{background:var(--surf);color:var(--t2)}
+.ni.on{background:var(--surf);color:var(--t1);font-weight:500;border-left-color:var(--em)}
+.ni-ic{width:16px;text-align:center;font-size:13px;flex-shrink:0}
+.ni-bd{margin-left:auto;background:var(--da);color:#fff;font-size:8px;font-weight:700;padding:1px 5px;border-radius:99px;font-family:var(--fm);min-width:16px;text-align:center}
+.sb-ft{padding:9px 7px 12px;border-top:1px solid var(--b0)}
+.langs{display:flex;gap:3px;margin-bottom:8px}
+.lb{flex:1;padding:4px;font-size:9px;font-weight:500;background:transparent;border:1px solid transparent;color:var(--t3);border-radius:5px;cursor:pointer;text-transform:uppercase;letter-spacing:.04em;transition:all .1s}
+.lb.on{background:var(--surf);color:var(--t1);border-color:var(--b1)}
+.usr{display:flex;align-items:center;gap:7px;padding:6px 4px;border-radius:7px;cursor:pointer}
+.usr:hover{background:var(--surf)}
+.av{width:26px;height:26px;border-radius:50%;background:var(--elev);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:var(--t2);flex-shrink:0}
+
+/* ── MAIN ── */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0}
+.topbar{height:50px;background:var(--card);border-bottom:1px solid var(--b0);display:flex;align-items:center;padding:0 22px;gap:10px;flex-shrink:0}
+.bc{font-size:11px;color:var(--t3)}.bc span{color:var(--t2)}
+.srch{flex:1;max-width:260px;margin-left:auto}
+.srch input{width:100%;background:var(--surf);border:1px solid var(--b0);color:var(--t1);padding:6px 11px;border-radius:7px;font-size:11px;font-family:var(--fb)}
+.srch input::placeholder{color:var(--t3)}
+.srch input:focus{outline:none;border-color:var(--em)}
+.tbi{width:30px;height:30px;background:var(--surf);border:1px solid var(--b0);border-radius:7px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:13px;color:var(--t2);position:relative}
+.tbi:hover{border-color:var(--b1)}
+.nd{position:absolute;top:5px;right:5px;width:5px;height:5px;border-radius:50%;background:var(--da);border:1px solid var(--card)}
+.tb-av{width:30px;height:30px;border-radius:50%;background:var(--elev);display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:500;color:var(--t2);cursor:pointer}
+
+.content{flex:1;overflow-y:auto;overflow-x:hidden}
+.content::-webkit-scrollbar{width:3px}
+.content::-webkit-scrollbar-thumb{background:var(--b1);border-radius:99px}
+.pg{display:none;padding:24px 28px;animation:fu .2s ease}
+.pg.on{display:block}
+@keyframes fu{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── PAGE HEADER ── */
+.ph{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px}
+.ph-t{font-family:var(--fh);font-size:20px;font-weight:700;letter-spacing:-.4px;line-height:1.1}
+.ph-s{font-size:11px;color:var(--t3);margin-top:3px}
+.ph-r{display:flex;align-items:center;gap:7px}
+
+/* ── KPI GRID ── */
+.kg{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:16px}
+.kc{background:var(--card);border:1px solid var(--b0);border-radius:9px;padding:14px 16px;transition:border-color .1s;position:relative;overflow:hidden}
+.kc:hover{border-color:var(--b1)}
+.kc-acc{position:absolute;top:0;left:0;right:0;height:2px}
+.kc-l{font-size:10px;font-weight:500;color:var(--t3);letter-spacing:.05em;text-transform:uppercase;margin-bottom:8px}
+.kc-v{font-family:var(--fm);font-size:28px;font-weight:600;line-height:1;margin-bottom:3px}
+.kc-s{font-size:10px;color:var(--t3)}
+
+/* ── CARDS ── */
+.card{background:var(--card);border:1px solid var(--b0);border-radius:10px;padding:16px;transition:border-color .1s}
+.card:hover{border-color:var(--b1)}
+.ch{font-size:11px;font-weight:500;color:var(--t2);margin-bottom:12px;display:flex;justify-content:space-between;align-items:center}
+.chv{font-family:var(--fm);font-size:11px;color:var(--em)}
+
+/* ── GRIDS ── */
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:12px}
+.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
+.row-c{display:grid;grid-template-columns:1fr 270px;gap:12px;margin-bottom:12px}
+
+/* ── CHART ── */
+.cw{height:120px;position:relative}
+
+/* ── METER TILES ── */
+.mg{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px}
+.mt{padding:11px 12px;border-radius:8px;border:1px solid var(--b0);background:var(--surf);transition:all .3s;cursor:pointer}
+.mt:hover{border-color:var(--b1)}
+.mt.disc{background:rgba(255,77,79,.03);border-color:rgba(255,77,79,.22)}
+.mt.low{border-color:rgba(245,166,35,.28)}
+.mt.tamper{border-color:rgba(245,166,35,.4);animation:bp 2s infinite}
+@keyframes bp{0%,100%{border-color:rgba(245,166,35,.35)}50%{border-color:rgba(245,166,35,.75)}}
+.mt-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.mt-id{font-family:var(--fm);font-size:10px;font-weight:600;color:var(--t2)}
+.mt-d{width:5px;height:5px;border-radius:50%}
+.mt-pw{font-family:var(--fm);font-size:19px;font-weight:600;line-height:1;margin-bottom:4px}
+.mt-bal{font-family:var(--fm);font-size:10px}
+.mt-warn{font-size:8px;font-weight:600;color:var(--wa);margin-top:3px;letter-spacing:.04em}
+
+/* ── BADGES ── */
+.bd{display:inline-flex;align-items:center;font-size:9px;font-weight:600;padding:2px 7px;border-radius:4px;letter-spacing:.04em;text-transform:uppercase;border:1px solid;white-space:nowrap}
+.bd-ok{background:rgba(0,217,126,.08);color:var(--em);border-color:rgba(0,217,126,.2)}
+.bd-wa{background:rgba(245,166,35,.08);color:var(--wa);border-color:rgba(245,166,35,.2)}
+.bd-da{background:rgba(255,77,79,.08);color:var(--da);border-color:rgba(255,77,79,.2)}
+.bd-in{background:rgba(77,159,255,.08);color:var(--in);border-color:rgba(77,159,255,.2)}
+.bd-nu{background:rgba(255,255,255,.04);color:var(--t2);border-color:var(--b1)}
+
+/* ── BUTTONS ── */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:5px;padding:7px 15px;font-size:12px;font-weight:500;border-radius:7px;cursor:pointer;transition:all .1s;font-family:var(--fb);border:1px solid;line-height:1}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--em);color:#000;border-color:transparent}
+.btn-p:hover{filter:brightness(1.08)}
+.btn-g{background:transparent;color:var(--t2);border-color:var(--b1)}
+.btn-g:hover{background:var(--surf);border-color:var(--b2);color:var(--t1)}
+.btn-sm{padding:4px 10px;font-size:11px}
+.btn-full{width:100%;padding:11px}
+
+/* ── TABLE ── */
+.tw{border:1px solid var(--b0);border-radius:10px;overflow:hidden}
+table{width:100%;border-collapse:collapse;font-size:12px}
+th{text-align:left;padding:8px 13px;font-size:9px;font-weight:500;color:var(--t3);letter-spacing:.06em;text-transform:uppercase;background:var(--surf);border-bottom:1px solid var(--b0)}
+td{padding:10px 13px;border-bottom:1px solid var(--b0);color:var(--t2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+tr:hover td{background:rgba(255,255,255,.015)}
+.tn{font-weight:500;color:var(--t1)}
+.tm{font-family:var(--fm)}
+
+/* ── ALERTS ── */
+.ai{display:flex;gap:9px;padding:10px 0;border-bottom:1px solid var(--b0)}
+.ai:last-child{border-bottom:none}
+.as{width:6px;height:6px;border-radius:50%;flex-shrink:0;margin-top:3px}
+.at{font-size:12px;font-weight:500;color:var(--t1);margin-bottom:2px}
+.am{font-size:11px;color:var(--t2)}
+.atime{font-family:var(--fm);font-size:9px;color:var(--t3);margin-left:auto;padding-top:1px;flex-shrink:0}
+
+/* ── INPUTS ── */
+.lbl{font-size:10px;color:var(--t3);display:block;margin-bottom:4px;letter-spacing:.03em}
+.inp{background:var(--surf);border:1px solid var(--b1);color:var(--t1);padding:8px 11px;border-radius:7px;font-size:12px;font-family:var(--fb);width:100%;transition:border-color .1s}
+.inp:focus{outline:none;border-color:var(--em)}
+.inp::placeholder{color:var(--t3)}
+
+/* ── FILTER PILLS ── */
+.fp{display:flex;gap:5px;margin-bottom:13px;flex-wrap:wrap}
+.fp-b{padding:5px 12px;border-radius:99px;font-size:11px;cursor:pointer;border:1px solid var(--b0);background:transparent;color:var(--t3);transition:all .1s}
+.fp-b:hover{border-color:var(--b1);color:var(--t2)}
+.fp-b.on{border-color:var(--em);color:var(--em);background:var(--em-d)}
+
+/* ── PROGRESS ── */
+.prg{margin-bottom:9px}
+.prg-l{display:flex;justify-content:space-between;font-size:10px;color:var(--t3);margin-bottom:3px}
+.prg-t{height:4px;background:var(--elev);border-radius:99px;overflow:hidden}
+.prg-f{height:100%;border-radius:99px;transition:width .5s ease}
+
+/* ── MINI CARD ── */
+.mc{background:var(--surf);border-radius:7px;padding:10px 12px}
+.mc-l{font-size:9px;color:var(--t3);margin-bottom:3px}
+.mc-v{font-family:var(--fm);font-size:17px;font-weight:600}
+
+/* ── TOKEN ── */
+.tok{background:var(--em-d);border:1px solid var(--em-g);border-radius:8px;padding:14px 16px;text-align:center}
+.tok-v{font-family:var(--fm);font-size:20px;font-weight:700;color:var(--t1);letter-spacing:.14em}
+.tok-n{font-size:10px;color:var(--t3);margin-top:6px}
+
+/* ── MILESTONES ── */
+.ms-i{display:flex;align-items:center;gap:8px;margin-bottom:9px;font-size:12px}
+.ms-c{width:17px;height:17px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px}
+.ms-ok{background:rgba(0,217,126,.14);border:1px solid rgba(0,217,126,.3);color:var(--em)}
+.ms-no{background:var(--elev);border:1px solid var(--b1);color:var(--t3)}
+
+/* ── CARBON TIERS ── */
+.ct{background:var(--surf);border-radius:7px;padding:11px 10px;text-align:center}
+.ct-l{font-size:9px;color:var(--t3);margin-bottom:4px}
+.ct-v{font-family:var(--fm);font-size:20px;font-weight:700;margin-bottom:2px}
+.ct-r{font-size:9px;color:var(--t3)}
+
+/* ── WATERFALL ── */
+.wb{margin-bottom:8px}
+.wb-l{display:flex;justify-content:space-between;font-size:11px;color:var(--t2);margin-bottom:3px}
+.wb-t{height:13px;background:var(--elev);border-radius:3px;overflow:hidden}
+.wb-f{height:100%;border-radius:3px;transition:width .6s ease}
+
+/* ── HEATMAP ── */
+.hm{display:grid;grid-template-columns:repeat(6,1fr);gap:4px;margin:10px 0}
+.hmc{border-radius:4px;padding:6px 3px;text-align:center;font-size:8px;font-family:var(--fm)}
+
+/* ── REG CALENDAR ── */
+.ri{display:flex;gap:9px;padding:8px 0;border-bottom:1px solid var(--b0);font-size:11px}
+.ri:last-child{border-bottom:none}
+.ri-d{width:7px;height:7px;border-radius:50%;flex-shrink:0;margin-top:2px}
+.ri-due{font-family:var(--fm);font-size:10px;margin-left:auto;flex-shrink:0}
+
+/* ── MODAL ── */
+.modal-bg{background:rgba(6,13,24,.8);display:flex;align-items:center;justify-content:center;min-height:100%;padding:20px}
+.modal{background:var(--card);border:1px solid var(--b1);border-radius:14px;width:100%;max-width:420px;padding:22px}
+.modal-hd{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
+.modal-t{font-family:var(--fh);font-size:15px;font-weight:700}
+.modal-x{background:transparent;border:none;color:var(--t3);font-size:20px;cursor:pointer;line-height:1;padding:0}
+
+/* ── PHONE ── */
+.ph-dev{background:#0c1220;border-radius:18px;border:2px solid #1e3050;overflow:hidden;display:flex;flex-direction:column;width:162px;flex-shrink:0}
+.ph-sb{background:#0f1827;padding:5px 11px;display:flex;justify-content:space-between;align-items:center;font-family:var(--fm);font-size:8px;color:#eef2ff}
+.ph-body{padding:10px 10px;flex:1}
+.ph-pg{font-size:12px;font-weight:700;color:#eef2ff;text-align:center;margin:3px 0 9px}
+.ph-btnp{background:#064e3b;border:1px solid rgba(0,217,126,.3);color:#d1fae5;padding:8px 0;border-radius:7px;text-align:center;font-size:11px;font-weight:500;margin-bottom:6px;cursor:pointer;width:100%}
+.ph-btns{background:#0f1e35;border:1px solid #1e3050;color:#eef2ff;padding:7px 0;border-radius:7px;text-align:center;font-size:11px;margin-bottom:6px;cursor:pointer;width:100%}
+.ph-inp{background:#0f1e35;border:1px solid #1e3050;padding:7px 9px;border-radius:6px;width:100%;margin-bottom:6px;font-size:9px;font-family:monospace;color:#94a3b8}
+.ph-cr{display:flex;align-items:center;gap:6px;padding:6px 0;border-bottom:1px solid #1e3050}
+.ph-av{width:24px;height:24px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0}
+
+/* ── USSD ── */
+.us{background:#0d1117;border-radius:11px;border:1.5px solid #2a3650;padding:11px;font-family:monospace;font-size:9px}
+.us-t{color:#00d97e;font-weight:600;margin-bottom:4px}
+.us-l{color:#d1fae5;line-height:1.9}
+.us-o{color:#a3e635;line-height:1.9}
+.us-p{color:#475569;margin-top:4px}
+
+/* ── REPORT CARDS ── */
+.rep{background:var(--card);border:1px solid var(--b0);border-radius:9px;padding:14px;cursor:pointer;transition:all .1s}
+.rep:hover{border-color:var(--b1);background:var(--surf)}
+
+/* ── MAP ── */
+.map-wrap{background:var(--bg);border:1px solid var(--b0);border-radius:9px;overflow:hidden;min-height:380px;position:relative}
+
+/* ── DIVIDER ── */
+.sec-hd{font-size:11px;font-weight:500;color:var(--t2);margin-bottom:10px;display:flex;justify-content:space-between;align-items:center}
+</style>
+</head>
+<body>
+<div class="shell">
+
+<!-- SIDEBAR -->
+<div class="sb">
+  <div class="sb-hd">
+    <div class="logo">
+      <div class="lm">G</div>
+      <div class="ln">GridOS</div>
+    </div>
+    <div class="site">Ukerewe · Nansio Feeder</div>
+    <div class="live-r"><div class="dot"></div><span class="live-t" id="lt">Live · tick 0</span></div>
+  </div>
+  <div class="nav">
+    <div class="ni on" data-pg="dash" onclick="go(this)"><span class="ni-ic">◉</span>Dashboard</div>
+    <div class="ni" data-pg="portfolio" onclick="go(this)"><span class="ni-ic">⬡</span>Portfolio</div>
+    <div class="ni" data-pg="meters" onclick="go(this)"><span class="ni-ic">⚡</span>Meters</div>
+    <div class="ni" data-pg="customers" onclick="go(this)"><span class="ni-ic">◎</span>Customers</div>
+    <div class="ni" data-pg="alerts" onclick="go(this)"><span class="ni-ic">◈</span>Alerts<span class="ni-bd" id="al-ct">3</span></div>
+    <div class="ni" data-pg="analytics" onclick="go(this)"><span class="ni-ic">▦</span>Analytics</div>
+    <div class="ni" data-pg="fintech" onclick="go(this)"><span class="ni-ic">◆</span>Fintech</div>
+    <div class="ni" data-pg="operations" onclick="go(this)"><span class="ni-ic">⚙</span>Operations</div>
+    <div class="ni" data-pg="reports" onclick="go(this)"><span class="ni-ic">▤</span>Reports</div>
+    <div class="ni" data-pg="planning" onclick="go(this)"><span class="ni-ic">⊕</span>Planning</div>
+    <div class="ni" data-pg="ussd" onclick="go(this)"><span class="ni-ic">◱</span>USSD</div>
+    <div class="ni" data-pg="agent" onclick="go(this)"><span class="ni-ic">◐</span>Agent App</div>
+  </div>
+  <div class="sb-ft">
+    <div class="langs">
+      <button class="lb on" onclick="setlang(this)">EN</button>
+      <button class="lb" onclick="setlang(this)">SW</button>
+      <button class="lb" onclick="setlang(this)">FR</button>
+    </div>
+    <div class="usr">
+      <div class="av">JM</div>
+      <div><div style="font-size:11px;font-weight:500;color:var(--t1)">Justin Mafie</div><div style="font-size:9px;color:var(--t3)">Operator</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+  <div class="topbar">
+    <div class="bc"><span id="bc">Dashboard</span> / Ukerewe</div>
+    <div class="srch"><input placeholder="Search meters, customers…"/></div>
+    <div class="tbi">🔔<div class="nd"></div></div>
+    <div class="tbi">⚙</div>
+    <div class="tb-av">JM</div>
+  </div>
+  <div class="content">
+
+    <!-- DASHBOARD -->
+    <div class="pg on" id="pg-dash">
+      <div class="ph">
+        <div><div class="ph-t">Site overview</div><div class="ph-s">Ukerewe Island · Nansio Feeder · 50 kW capacity</div></div>
+        <div class="ph-r"><div class="dot"></div><span style="font-size:10px;color:var(--t3);font-family:var(--fm)" id="tick-lbl">tick 0</span></div>
+      </div>
+      <div class="kg">
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Connected meters</div><div class="kc-v" id="k-conn" style="color:var(--em)">9/10</div><div class="kc-s">90% active</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--in)"></div><div class="kc-l">Total load</div><div class="kc-v" id="k-load" style="color:var(--t1)">—W</div><div class="kc-s" id="k-util">— of 50kW</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--da)"></div><div class="kc-l">Zero balance</div><div class="kc-v" style="color:var(--da)">1</div><div class="kc-s">Need top-up</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--wa)"></div><div class="kc-l">Active alerts</div><div class="kc-v" style="color:var(--wa)">3</div><div class="kc-s">1 critical</div></div>
+      </div>
+      <div class="row-c">
+        <div class="card"><div class="ch">Site load — live (W)<span class="chv" id="chart-v">—W</span></div><div class="cw"><canvas id="lc"></canvas></div></div>
+        <div class="card"><div class="ch">Alerts</div><div id="af"></div></div>
+      </div>
+      <div class="card"><div class="sec-hd">Live meter feed — 10 meters</div><div class="mg" id="mg"></div></div>
+    </div>
+
+    <!-- PORTFOLIO -->
+    <div class="pg" id="pg-portfolio">
+      <div class="ph"><div><div class="ph-t">Portfolio</div><div class="ph-s">All operator sites</div></div></div>
+      <div class="kg">
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Sites</div><div class="kc-v" style="color:var(--t1)">1</div><div class="kc-s">Active</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Customers</div><div class="kc-v" style="color:var(--em)">9</div><div class="kc-s">Active</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Revenue/mo</div><div class="kc-v" style="color:var(--em)">$520</div><div class="kc-s">TZS 1.3M</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Avg health</div><div class="kc-v" style="color:var(--em)">82</div><div class="kc-s">/ 100</div></div>
+      </div>
+      <div class="tw"><table><thead><tr><th>Site</th><th>Health</th><th>Meters</th><th>Customers</th><th>Revenue/mo</th><th>Alerts</th><th>Status</th></tr></thead><tbody>
+        <tr>
+          <td><div class="tn">Ukerewe Island — Nansio</div><div style="font-size:10px;color:var(--t3)">Mwanza Region · 50 kW</div></td>
+          <td><svg width="42" height="42" viewBox="0 0 42 42"><circle cx="21" cy="21" r="15" fill="none" stroke="#0f1e35" stroke-width="3"/><circle cx="21" cy="21" r="15" fill="none" stroke="#00d97e" stroke-width="3" stroke-dasharray="66 28" stroke-linecap="round" transform="rotate(-90 21 21)"/><text x="21" y="25" text-anchor="middle" font-family="monospace" font-size="9" font-weight="600" fill="#00d97e">82</text></svg></td>
+          <td class="tm">10</td><td class="tm" style="color:var(--em)">9</td>
+          <td class="tm" style="color:var(--em)">TZS 1.3M</td>
+          <td><span class="bd bd-wa">3</span></td>
+          <td><span class="bd bd-ok">Healthy</span></td>
+        </tr>
+      </tbody></table></div>
+    </div>
+
+    <!-- METERS -->
+    <div class="pg" id="pg-meters">
+      <div class="ph"><div><div class="ph-t">Meters</div><div class="ph-s">10 registered · live telemetry</div></div></div>
+      <div class="kg">
+        <div class="kc"><div class="kc-l">Total</div><div class="kc-v" style="color:var(--t1)">10</div></div>
+        <div class="kc"><div class="kc-l">Active</div><div class="kc-v" id="m-act" style="color:var(--em)">9</div></div>
+        <div class="kc"><div class="kc-l">Disconnected</div><div class="kc-v" id="m-dis" style="color:var(--da)">1</div></div>
+        <div class="kc"><div class="kc-l">Tamper</div><div class="kc-v" id="m-tam" style="color:var(--wa)">1</div></div>
+      </div>
+      <div class="tw"><table><thead><tr><th>Meter ID</th><th>Customer</th><th>Brand</th><th>Status</th><th>Power</th><th>Voltage</th><th>Balance (TZS)</th><th>Signal</th></tr></thead><tbody id="mtb"></tbody></table></div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="pg" id="pg-customers">
+      <div class="ph"><div><div class="ph-t">Customers</div><div class="ph-s">10 registered · Ukerewe Island</div></div><button class="btn btn-g btn-sm" onclick="go(document.querySelector('[data-pg=topup]'))">+ Top up</button></div>
+      <div class="fp" id="cf">
+        <button class="fp-b on" onclick="fc('all',this)">All</button>
+        <button class="fp-b" onclick="fc('low',this)">Low credit</button>
+        <button class="fp-b" onclick="fc('zero',this)">Zero balance</button>
+        <button class="fp-b" onclick="fc('productive',this)">Productive use</button>
+      </div>
+      <div class="tw"><table><thead><tr><th>Customer</th><th>Type</th><th>Meter</th><th>Balance</th><th>Score</th><th>Status</th><th></th></tr></thead><tbody id="ctb"></tbody></table></div>
+    </div>
+
+    <!-- TOP-UP MODAL -->
+    <div class="pg" id="pg-topup">
+      <div class="modal-bg">
+        <div class="modal">
+          <div class="modal-hd"><div><div class="modal-t">Top up — Amina Hassan</div><div style="font-size:11px;color:var(--t3);margin-top:3px">MTR-001 · Balance: TZS 4,980</div></div><button class="modal-x" onclick="go(document.querySelector('[data-pg=customers]'))">×</button></div>
+          <div style="margin-bottom:13px"><div class="lbl">Quick amounts</div>
+            <div class="fp" style="margin-bottom:0">
+              <button class="fp-b" onclick="sa(1000,this)">1K</button>
+              <button class="fp-b" onclick="sa(2000,this)">2K</button>
+              <button class="fp-b on" onclick="sa(5000,this)">5K</button>
+              <button class="fp-b" onclick="sa(10000,this)">10K</button>
+              <button class="fp-b" onclick="sa(20000,this)">20K</button>
+            </div>
+          </div>
+          <div style="margin-bottom:12px"><label class="lbl">Amount (TZS)</label><input class="inp" id="ta" value="5000" oninput="ck()"/><div style="font-size:10px;color:var(--em);margin-top:4px" id="ck-v">= 2.92 kWh · TZS 1,710/kWh</div></div>
+          <div style="margin-bottom:14px"><div class="lbl">Payment method</div>
+            <div class="fp" style="margin-bottom:0">
+              <button class="fp-b on">M-Pesa</button>
+              <button class="fp-b">Airtel</button>
+              <button class="fp-b">Tigo Cash</button>
+              <button class="fp-b">Cash</button>
+            </div>
+          </div>
+          <button class="btn btn-p btn-full" onclick="issueToken()">Issue token — TZS <span id="btn-amt">5,000</span></button>
+          <div id="tok-res" style="display:none;margin-top:14px">
+            <div class="tok"><div style="font-size:10px;color:var(--em);margin-bottom:8px;font-weight:500">✓ Token generated successfully</div><div class="tok-v" id="tok-val"></div><div class="tok-n">Sent via SMS · Enter on meter keypad · 2.92 kWh credit</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="pg" id="pg-alerts">
+      <div class="ph"><div><div class="ph-t">Alerts</div><div class="ph-s">3 total · 1 critical</div></div></div>
+      <div class="fp" id="alf">
+        <button class="fp-b on" onclick="fa('all',this)">All</button>
+        <button class="fp-b" onclick="fa('critical',this)">Critical</button>
+        <button class="fp-b" onclick="fa('high',this)">High</button>
+        <button class="fp-b" onclick="fa('medium',this)">Medium</button>
+      </div>
+      <div class="card" id="alp"></div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="pg" id="pg-analytics">
+      <div class="ph"><div><div class="ph-t">Analytics</div><div class="ph-s">Revenue · energy · collection — Ukerewe</div></div></div>
+      <div class="kg">
+        <div class="kc"><div class="kc-l">ARPU / month</div><div class="kc-v" style="color:var(--em);font-size:22px">TZS 18,400</div></div>
+        <div class="kc"><div class="kc-l">Collection rate</div><div class="kc-v" style="color:var(--em);font-size:22px">78%</div><div style="font-size:10px;font-weight:500;color:var(--em);font-family:var(--fm)">▲ 3%</div></div>
+        <div class="kc"><div class="kc-l">Energy efficiency</div><div class="kc-v" style="color:var(--t1);font-size:22px">94.5%</div></div>
+        <div class="kc"><div class="kc-l">Revenue / month</div><div class="kc-v" style="color:var(--em);font-size:22px">TZS 1.3M</div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch">Daily revenue — last 7 days (TZS)</div><div style="height:160px;position:relative"><canvas id="rc"></canvas></div></div>
+        <div class="card"><div class="ch">By customer type</div>
+          <div class="g2" style="gap:8px">
+            <div class="mc"><div class="mc-l">Residential (4)</div><div class="mc-v" style="color:var(--t1)">TZS 420K</div></div>
+            <div class="mc"><div class="mc-l">Business (4)</div><div class="mc-v" style="color:var(--in)">TZS 624K</div></div>
+            <div class="mc"><div class="mc-l">Productive (2)</div><div class="mc-v" style="color:var(--wa)">TZS 728K</div></div>
+            <div class="mc"><div class="mc-l">Total / month</div><div class="mc-v" style="color:var(--em)">TZS 1.3M</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- FINTECH -->
+    <div class="pg" id="pg-fintech">
+      <div class="ph"><div><div class="ph-t">Fintech</div><div class="ph-s">RBF grants · Carbon credits · MFI lending · Blended finance</div></div></div>
+      <div class="kg">
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Est. RBF grant</div><div class="kc-v" style="color:var(--em);font-size:22px">$48,000</div><div class="kc-s">Eligible now</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Carbon YTD</div><div class="kc-v" style="color:var(--em);font-size:22px">$1,040</div><div class="kc-s">Gold Standard</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--in)"></div><div class="kc-l">MFI portfolio</div><div class="kc-v" style="color:var(--t1);font-size:22px">10</div><div class="kc-s">avg 72/100</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">Receivables ARR</div><div class="kc-v" style="color:var(--em);font-size:22px">$6,240</div><div class="kc-s">DFI eligible</div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch">RBF milestone tracker<span class="bd bd-ok">Eligible</span></div>
+          <div style="font-family:var(--fm);font-size:32px;font-weight:700;color:var(--em);margin-bottom:4px">$48,000</div>
+          <div style="font-size:11px;color:var(--t3);margin-bottom:13px">REA Tanzania · $400/connection · World Bank RBF</div>
+          <div class="ms-i"><div class="ms-c ms-ok">✓</div><span style="color:var(--t2);flex:1">120 verified connections</span><span style="font-family:var(--fm);font-size:10px;color:var(--em)">120/50</span></div>
+          <div class="ms-i"><div class="ms-c ms-ok">✓</div><span style="color:var(--t2);flex:1">78% collection rate</span><span style="font-family:var(--fm);font-size:10px;color:var(--em)">78/70%</span></div>
+          <div class="ms-i"><div class="ms-c ms-ok">✓</div><span style="color:var(--t2);flex:1">LOIS/EWURA registered</span><span style="font-family:var(--fm);font-size:10px;color:var(--em)">Done</span></div>
+          <div class="ms-i"><div class="ms-c ms-ok">✓</div><span style="color:var(--t2);flex:1">Smart meter data available</span><span style="font-family:var(--fm);font-size:10px;color:var(--em)">Done</span></div>
+          <div class="ms-i"><div class="ms-c ms-no"></div><span style="color:var(--t3);flex:1">Q3 report submitted</span><span style="font-family:var(--fm);font-size:10px;color:var(--wa)">Due Sep 30</span></div>
+        </div>
+        <div class="card"><div class="ch">Carbon revenue — year to date</div>
+          <div class="g3" style="margin-bottom:13px">
+            <div class="ct"><div class="ct-l">OTC Africa</div><div class="ct-v" style="color:var(--em)">$240</div><div class="ct-r">$3/tCO2e</div></div>
+            <div class="ct"><div class="ct-l">Gold Standard</div><div class="ct-v" style="color:var(--em)">$1,040</div><div class="ct-r">$13/tCO2e</div></div>
+            <div class="ct"><div class="ct-l">Compliance</div><div class="ct-v" style="color:var(--t2)">$2,000</div><div class="ct-r">$25/tCO2e</div></div>
+          </div>
+          <div class="prg"><div class="prg-l"><span>80 tCO2e of 180 projected</span><span style="color:var(--em)">44%</span></div><div class="prg-t"><div class="prg-f" style="width:44%;background:var(--em)"></div></div></div>
+          <div style="font-size:10px;color:var(--t3)">Registry: pending · Apply at verra.org</div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch">Blended finance calculator</div>
+          <div class="g2" style="gap:9px;margin-bottom:11px">
+            <div><label class="lbl">Capacity (kW)</label><input class="inp" value="50"/></div>
+            <div><label class="lbl">Connections</label><input class="inp" value="300"/></div>
+          </div>
+          <div class="wb"><div class="wb-l"><span style="color:var(--em)">RBF grant (27%)</span><span style="font-family:var(--fm);color:var(--em)">$48,000</span></div><div class="wb-t"><div class="wb-f" style="width:27%;background:var(--em)"></div></div></div>
+          <div class="wb"><div class="wb-l"><span style="color:var(--in)">Equity (25%)</span><span style="font-family:var(--fm);color:var(--in)">$45,000</span></div><div class="wb-t"><div class="wb-f" style="width:25%;background:var(--in)"></div></div></div>
+          <div class="wb"><div class="wb-l"><span style="color:var(--t2)">DFI conc. debt (48%)</span><span style="font-family:var(--fm);color:var(--t2)">$87,000</span></div><div class="wb-t"><div class="wb-f" style="width:48%;background:#1e2d42"></div></div></div>
+          <div style="display:flex;justify-content:space-between;padding-top:9px;font-size:11px;border-top:1px solid var(--b0)"><span style="color:var(--t3)">DSCR · Bankable</span><span style="font-family:var(--fm);color:var(--em);font-weight:600">1.62× · Yes</span></div>
+        </div>
+        <div class="card"><div class="ch">MFI lending portfolio</div>
+          <div class="g4" style="gap:7px;margin-bottom:12px">
+            <div class="mc" style="text-align:center"><div class="mc-l">Excellent</div><div class="mc-v" style="color:var(--em)">4</div></div>
+            <div class="mc" style="text-align:center"><div class="mc-l">Good</div><div class="mc-v" style="color:var(--in)">3</div></div>
+            <div class="mc" style="text-align:center"><div class="mc-l">Fair</div><div class="mc-v" style="color:var(--wa)">2</div></div>
+            <div class="mc" style="text-align:center"><div class="mc-l">Poor</div><div class="mc-v" style="color:var(--da)">1</div></div>
+          </div>
+          <div style="font-size:11px;color:var(--t2);margin-bottom:4px">Avg: <span style="font-family:var(--fm);color:var(--t1)">72/100</span> · TZS 95,000 recommended</div>
+          <div style="font-size:10px;color:var(--t3);margin-bottom:10px">Partners: Jumo · Branch · FINCA Tanzania</div>
+          <button class="btn btn-g btn-sm" style="width:100%">Export JSON ↓</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- OPERATIONS -->
+    <div class="pg" id="pg-operations">
+      <div class="ph"><div><div class="ph-t">Operations</div><div class="ph-s">Anomaly · Maintenance · Regulatory · SDG7</div></div></div>
+      <div class="kg">
+        <div class="kc"><div class="kc-acc" style="background:var(--da)"></div><div class="kc-l">Anomalies (24h)</div><div class="kc-v" style="color:var(--da)">3</div><div class="kc-s">1 critical</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--wa)"></div><div class="kc-l">Season demand</div><div class="kc-v" style="color:var(--wa)">+18%</div><div class="kc-s">Harvest peak</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--da)"></div><div class="kc-l">Urgent tasks</div><div class="kc-v" style="color:var(--da)">2</div><div class="kc-s">Maintenance due</div></div>
+        <div class="kc"><div class="kc-acc" style="background:var(--em)"></div><div class="kc-l">People reached</div><div class="kc-v" style="color:var(--em)">504</div><div class="kc-s">SDG7 Tier 3</div></div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch">Anomaly feed — live</div>
+          <div class="ai"><div class="as" style="background:var(--da)"></div><div style="flex:1"><div class="at">Tamper event — MTR-004</div><div class="am">Baraka Fishing Co · probability 99%</div><div style="font-size:10px;color:var(--t3);margin-top:2px">Send field agent immediately</div></div><div class="atime">17:55</div></div>
+          <div class="ai"><div class="as" style="background:var(--wa)"></div><div style="flex:1"><div class="at">Consumption spike — MTR-006</div><div class="am">195W vs expected 130W (+50%) · 94%</div></div><div class="atime">16:22</div></div>
+          <div class="ai"><div class="as" style="background:var(--wa)"></div><div style="flex:1"><div class="at">Reading gap — MTR-009</div><div class="am">8/24 readings received · 87%</div></div><div class="atime">14:11</div></div>
+        </div>
+        <div class="card"><div class="ch">Agricultural season intelligence</div>
+          <div style="display:flex;align-items:center;gap:12px;margin-bottom:11px">
+            <div style="font-family:var(--fm);font-size:34px;font-weight:700;color:var(--wa)">+18%</div>
+            <div><div style="font-size:13px;color:var(--t1)">Harvest peak</div><div style="font-size:10px;color:var(--t3)">Maize harvest · mill demand surge</div></div>
+          </div>
+          <div class="hm">
+            <div class="hmc" style="background:rgba(77,159,255,.11);color:#4d9fff">Jan 0.92</div>
+            <div class="hmc" style="background:rgba(77,159,255,.09);color:#4d9fff">Feb 0.90</div>
+            <div class="hmc" style="background:rgba(0,217,126,.14);color:#00d97e">Mar 1.08</div>
+            <div class="hmc" style="background:rgba(0,217,126,.19);color:#00d97e">Apr 1.12</div>
+            <div class="hmc" style="background:rgba(0,217,126,.17);color:#00d97e">May 1.10</div>
+            <div class="hmc" style="background:rgba(77,159,255,.07);color:#4d9fff">Jun 1.00</div>
+            <div class="hmc" style="background:rgba(245,166,35,.18);color:#f5a623">Jul 1.15</div>
+            <div class="hmc" style="background:rgba(245,166,35,.32);color:#f5a623;border:1px solid rgba(245,166,35,.5)">Aug ●</div>
+            <div class="hmc" style="background:rgba(245,166,35,.2);color:#f5a623">Sep 1.14</div>
+            <div class="hmc" style="background:rgba(77,159,255,.07);color:#4d9fff">Oct 0.98</div>
+            <div class="hmc" style="background:rgba(77,159,255,.09);color:#4d9fff">Nov 1.02</div>
+            <div class="hmc" style="background:rgba(77,159,255,.07);color:#4d9fff">Dec 0.95</div>
+          </div>
+          <div style="font-size:10px;color:var(--t3)">Pre-charge batteries before daily load peak</div>
+        </div>
+      </div>
+      <div class="g2">
+        <div class="card"><div class="ch">Regulatory calendar</div>
+          <div class="ri"><div class="ri-d" style="background:var(--da)"></div><div style="flex:1"><div style="font-weight:500;color:var(--t1)">Q3 RBF Report — REA Tanzania</div><div style="color:var(--t2)">Connections + revenue verification</div></div><div class="ri-due" style="color:var(--da)">Sep 30</div></div>
+          <div class="ri"><div class="ri-d" style="background:var(--wa)"></div><div style="flex:1"><div style="font-weight:500;color:var(--t1)">EWURA Annual Report</div><div style="color:var(--t2)">Operational report submission</div></div><div class="ri-due" style="color:var(--wa)">Mar 31</div></div>
+          <div class="ri"><div class="ri-d" style="background:var(--t3)"></div><div style="flex:1"><div style="font-weight:500;color:var(--t1)">Tariff Review — EWURA</div><div style="color:var(--t2)">Tariff schedule submission</div></div><div class="ri-due" style="color:var(--t3)">Jun 30</div></div>
+          <div class="ri"><div class="ri-d" style="background:var(--t3)"></div><div style="flex:1"><div style="font-weight:500;color:var(--t1)">LOIS Licence Renewal</div><div style="color:var(--t2)">Annual renewal application</div></div><div class="ri-due" style="color:var(--t3)">Dec 31</div></div>
+        </div>
+        <div class="card"><div class="ch">SDG7 impact</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+            <div class="mc"><div class="mc-l">People reached</div><div class="mc-v" style="color:var(--em)">504</div></div>
+            <div class="mc"><div class="mc-l">CO2 avoided (t)</div><div class="mc-v" style="color:var(--em)">80</div></div>
+            <div class="mc"><div class="mc-l">kWh delivered</div><div class="mc-v" style="color:var(--t1)">100K</div></div>
+            <div class="mc"><div class="mc-l">Clinic kWh</div><div class="mc-v" style="color:var(--em)">15K</div></div>
+            <div class="mc"><div class="mc-l">School kWh</div><div class="mc-v" style="color:var(--em)">10K</div></div>
+            <div class="mc"><div class="mc-l">SE4All tier</div><div class="mc-v" style="color:var(--in)">Tier 3</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- REPORTS -->
+    <div class="pg" id="pg-reports">
+      <div class="ph"><div><div class="ph-t">Reports</div><div class="ph-s">Auto-generated compliance & regulatory docs</div></div></div>
+      <div class="g2">
+        <div class="rep"><div style="margin-bottom:8px"><span class="bd bd-ok" style="letter-spacing:.04em">REA · LOIS</span></div><div style="font-size:14px;font-weight:500;margin-bottom:4px">REA Tanzania RBF verification</div><div style="font-size:11px;color:var(--t3);margin-bottom:12px">Connections, revenue, collection — auto-format</div><button class="btn btn-g btn-sm">Generate ↓</button></div>
+        <div class="rep"><div style="margin-bottom:8px"><span class="bd bd-in">WB · SDG7</span></div><div style="font-size:14px;font-weight:500;margin-bottom:4px">World Bank / ESMAP</div><div style="font-size:11px;color:var(--t3);margin-bottom:12px">ESMAP-MINIGRID-2024 · SE4All Tier 3</div><button class="btn btn-g btn-sm">Generate ↓</button></div>
+        <div class="rep"><div style="margin-bottom:8px"><span class="bd bd-wa">EWURA · TZ</span></div><div style="font-size:14px;font-weight:500;margin-bottom:4px">EWURA tariff submission</div><div style="font-size:11px;color:var(--t3);margin-bottom:12px">Tariff schedule · customer breakdown</div><button class="btn btn-g btn-sm">Generate ↓</button></div>
+        <div class="rep"><div style="margin-bottom:8px"><span class="bd bd-ok">Verra · VCS</span></div><div style="font-size:14px;font-weight:500;margin-bottom:4px">Carbon credits — Verra VM0038</div><div style="font-size:11px;color:var(--t3);margin-bottom:12px">tCO2e · revenue projections</div><button class="btn btn-g btn-sm">Generate ↓</button></div>
+      </div>
+    </div>
+
+    <!-- PLANNING -->
+    <div class="pg" id="pg-planning">
+      <div class="ph"><div><div class="ph-t">Site planning</div><div class="ph-s">WorldPop · Global Solar Atlas · financial projections</div></div></div>
+      <div style="display:grid;grid-template-columns:300px 1fr;gap:12px">
+        <div class="card">
+          <div style="margin-bottom:10px"><label class="lbl">Latitude</label><input class="inp" value="-2.0167"/></div>
+          <div style="margin-bottom:10px"><label class="lbl">Longitude</label><input class="inp" value="33.0167"/></div>
+          <button class="btn btn-p btn-full" style="margin-bottom:14px">Score location</button>
+          <div style="font-family:var(--fm);font-size:42px;font-weight:700;color:var(--em);line-height:1;margin-bottom:4px">87</div>
+          <div style="font-size:13px;color:var(--em);margin-bottom:13px">/ 100 — Excellent</div>
+          <div class="prg"><div class="prg-l"><span>Population</span><span style="color:var(--em)">28/30</span></div><div class="prg-t"><div class="prg-f" style="width:93%;background:var(--em)"></div></div></div>
+          <div class="prg"><div class="prg-l"><span>Solar resource</span><span style="color:var(--em)">25/25</span></div><div class="prg-t"><div class="prg-f" style="width:100%;background:var(--em)"></div></div></div>
+          <div class="prg"><div class="prg-l"><span>Grid isolation</span><span style="color:var(--em)">24/25</span></div><div class="prg-t"><div class="prg-f" style="width:96%;background:var(--em)"></div></div></div>
+          <div class="prg"><div class="prg-l"><span>Productive use</span><span style="color:var(--in)">10/20</span></div><div class="prg-t"><div class="prg-f" style="width:50%;background:var(--in)"></div></div></div>
+          <div style="padding-top:11px;border-top:1px solid var(--b0);font-size:11px;color:var(--t2);line-height:2">
+            <div>Est. connections: <span class="tm" style="color:var(--t1)">420</span></div>
+            <div>CAPEX: <span class="tm" style="color:var(--t1)">$189,000</span></div>
+            <div>Revenue/yr: <span class="tm" style="color:var(--em)">$40,320</span></div>
+            <div>Payback: <span class="tm" style="color:var(--t1)">4.7 yrs</span></div>
+            <div>DSCR: <span class="tm" style="color:var(--em)">1.62× · Bankable</span></div>
+          </div>
+        </div>
+        <div class="map-wrap"><canvas id="mapc" style="width:100%;height:100%;display:block"></canvas></div>
+      </div>
+    </div>
+
+    <!-- USSD -->
+    <div class="pg" id="pg-ussd">
+      <div class="ph"><div><div class="ph-t">USSD portal</div><div class="ph-s">*150*00# · Africa's Talking · Kiswahili-first · Any GSM phone</div></div></div>
+      <div class="kg">
+        <div class="kc"><div class="kc-l">Sessions today</div><div class="kc-v" style="color:var(--t1)">147</div></div>
+        <div class="kc"><div class="kc-l">Tokens via USSD</div><div class="kc-v" style="color:var(--em)">63</div></div>
+        <div class="kc"><div class="kc-l">Avg session</div><div class="kc-v" style="color:var(--t1)">42s</div></div>
+        <div class="kc"><div class="kc-l">Revenue via USSD</div><div class="kc-v" style="color:var(--em)">315K</div><div class="kc-s">TZS today</div></div>
+      </div>
+      <div class="card"><div class="ch">5-step customer flow — what Grace sees when she dials *150*00#</div>
+        <div style="display:flex;gap:8px;align-items:flex-start;flex-wrap:wrap">
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div class="us" style="width:142px"><div class="us-t">GridOS Huduma</div><div class="us-l">Habari Amina!</div><div class="us-l">Salio: TZS 4,980</div><div style="height:4px"></div><div class="us-o">1. Angalia salio</div><div class="us-o">2. Nunua tokeni</div><div class="us-o">3. Ripoti tatizo</div><div class="us-o">4. Malipo ya mwisho</div><div class="us-o">5. Wasiliana wakala</div><div class="us-p">Reply: _</div></div>
+            <div style="font-size:9px;color:var(--t3)">Main menu</div>
+          </div>
+          <div style="color:var(--t3);font-size:11px;padding-top:32px">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div class="us" style="width:142px"><div class="us-t">Nunua tokeni</div><div class="us-l">Weka kiasi (TZS):</div><div class="us-l">Kiwango cha chini:</div><div class="us-l">TZS 500</div><div style="height:4px"></div><div class="us-l">Mfano: 2000</div><div class="us-l">5000, 10000</div><div style="height:6px"></div><div class="us-p">(Andika kiasi)</div></div>
+            <div style="font-size:9px;color:var(--t3)">Enter amount</div>
+          </div>
+          <div style="color:var(--t3);font-size:11px;padding-top:32px">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div class="us" style="width:142px"><div class="us-t">Thibitisha:</div><div class="us-l">TZS 5,000</div><div class="us-l">= 2.92 kWh</div><div class="us-l">Mita: MTR-001</div><div style="height:4px"></div><div class="us-o">1. Thibitisha</div><div class="us-o">2. Ghairi</div><div style="height:4px"></div><div class="us-p">Reply: _</div></div>
+            <div style="font-size:9px;color:var(--t3)">Confirm</div>
+          </div>
+          <div style="color:var(--t3);font-size:11px;padding-top:32px">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div class="us" style="width:142px;border-color:rgba(0,217,126,.4)"><div class="us-t">Tokeni yako:</div><div style="height:4px"></div><div style="color:#a3e635;font-weight:600;font-size:9.5px;letter-spacing:.07em">1234-5678</div><div style="color:#a3e635;font-weight:600;font-size:9.5px;letter-spacing:.07em">9012-3456-7890</div><div style="height:4px"></div><div class="us-l">Salio: TZS 9,980</div><div style="color:#00d97e;margin-top:4px;font-size:8px">SMS imetumwa ✓</div></div>
+            <div style="font-size:9px;color:var(--em)">Token delivered ✓</div>
+          </div>
+          <div style="color:var(--t3);font-size:11px;padding-top:32px">→</div>
+          <div style="display:flex;flex-direction:column;align-items:center;gap:5px">
+            <div class="us" style="width:142px"><div class="us-t">Ripoti tatizo:</div><div class="us-o">1. Hakuna umeme</div><div class="us-o">2. Mita haiendi</div><div class="us-o">3. Malipo tatizo</div><div class="us-o">4. Nyingine</div><div style="height:5px"></div><div style="color:#3d5068;font-size:8px">→ Alert logged</div><div style="color:#3d5068;font-size:8px">→ Agent notified</div><div style="color:#3d5068;font-size:8px">→ Dashboard live</div></div>
+            <div style="font-size:9px;color:var(--t3)">Fault report</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- AGENT APP -->
+    <div class="pg" id="pg-agent">
+      <div class="ph"><div><div class="ph-t">Agent app</div><div class="ph-s">Expo React Native · Offline-first · SQLite vault · Auto-sync</div></div></div>
+      <div style="display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap">
+        <div style="display:flex;flex-direction:column;gap:7px;align-items:center">
+          <div class="ph-dev">
+            <div class="ph-sb"><span>9:41</span><span style="color:#00d97e">● ● ●</span></div>
+            <div class="ph-body">
+              <div style="font-size:9px;color:#64748b;text-align:center;margin-bottom:2px">Ukerewe · Nansio</div>
+              <div class="ph-pg">GridOS Agent</div>
+              <div style="display:flex;align-items:center;gap:4px;margin-bottom:9px;font-size:8px;color:#00d97e"><div style="width:4px;height:4px;border-radius:50%;background:#00d97e"></div>Online · synced</div>
+              <div class="ph-btnp">Collect Payment</div>
+              <div class="ph-btns">Issue Token</div>
+              <div class="ph-btns">Customers</div>
+              <div class="ph-btns">Site Inspection</div>
+              <div style="height:5px"></div>
+              <div class="ph-btnp">Sync server ↑</div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--t3)">Home</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;align-items:center">
+          <div class="ph-dev">
+            <div class="ph-sb"><span>9:41</span><span style="color:#00d97e">● ● ●</span></div>
+            <div class="ph-body">
+              <div class="ph-pg">Pokea Malipo</div>
+              <div style="font-size:8px;color:#64748b;margin-bottom:3px">Nambari ya simu:</div>
+              <input class="ph-inp" value="+255 711 001 001"/>
+              <div style="background:#0f1e35;border-left:2px solid #00d97e;padding:6px 8px;border-radius:0 5px 5px 0;margin-bottom:7px">
+                <div style="font-size:9px;font-weight:600;color:#eef2ff">Amina Hassan</div>
+                <div style="font-size:8px;color:#64748b">MTR-001 · TZS 4,980</div>
+              </div>
+              <div style="font-size:8px;color:#64748b;margin-bottom:3px">Kiasi (TZS):</div>
+              <input class="ph-inp" value="5000"/>
+              <div style="display:flex;gap:3px;margin-bottom:7px">
+                <div style="background:rgba(0,217,126,.15);border:1px solid rgba(0,217,126,.3);color:#00d97e;padding:2px 6px;border-radius:99px;font-size:8px;cursor:pointer">Cash</div>
+                <div style="background:#0f1e35;border:1px solid #1e3050;color:#94a3b8;padding:2px 6px;border-radius:99px;font-size:8px;cursor:pointer">M-Pesa</div>
+                <div style="background:#0f1e35;border:1px solid #1e3050;color:#94a3b8;padding:2px 6px;border-radius:99px;font-size:8px;cursor:pointer">Airtel</div>
+              </div>
+              <div class="ph-btnp">Hifadhi Malipo</div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--t3)">Collect payment</div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:7px;align-items:center">
+          <div class="ph-dev">
+            <div class="ph-sb"><span>9:41</span><span style="color:#00d97e">● ● ●</span></div>
+            <div class="ph-body">
+              <div class="ph-pg">Wateja</div>
+              <input class="ph-inp" placeholder="Tafuta jina, simu..."/>
+              <div class="ph-cr"><div class="ph-av" style="background:#064e3b;color:#00d97e">AH</div><div><div style="font-size:9px;font-weight:600;color:#eef2ff">Amina Hassan</div><div style="font-family:monospace;font-size:7px;color:#64748b">MTR-001 · TZS 4,980</div></div></div>
+              <div class="ph-cr"><div class="ph-av" style="background:#064e3b;color:#00d97e">JM</div><div><div style="font-size:9px;font-weight:600;color:#eef2ff">Joseph Mwangi</div><div style="font-family:monospace;font-size:7px;color:#64748b">MTR-002 · TZS 12,540</div></div></div>
+              <div class="ph-cr"><div class="ph-av" style="background:#3d2200;color:#f5a623">GN</div><div><div style="font-size:9px;font-weight:600;color:#f5a623">Grace Nyamweru</div><div style="font-family:monospace;font-size:7px;color:#f5a623">MTR-005 · TZS 680 ⚠</div></div></div>
+              <div class="ph-cr" style="border-bottom:none"><div class="ph-av" style="background:#2d0a0a;color:#ff4d4f">PE</div><div><div style="font-size:9px;font-weight:600;color:#ff4d4f">Pastor Elias</div><div style="font-family:monospace;font-size:7px;color:#ff4d4f">MTR-010 · TZS 0 ✗</div></div></div>
+            </div>
+          </div>
+          <div style="font-size:9px;color:var(--t3)">Customers</div>
+        </div>
+        <div class="card" style="flex:1;min-width:220px;max-width:340px">
+          <div class="ch">Offline token vault</div>
+          <div style="font-size:10px;color:var(--t3);margin-bottom:9px">Pre-generated · SQLite encrypted · 7-day expiry</div>
+          <div style="background:var(--surf);border-radius:7px;padding:9px 10px;margin-bottom:5px;font-family:var(--fm);font-size:10px"><div style="color:var(--t2);margin-bottom:2px">MTR-001 — Amina Hassan</div><div style="color:var(--em)">TZS 2,000 · 1.17 kWh · exp 2025-08-22</div></div>
+          <div style="background:var(--surf);border-radius:7px;padding:9px 10px;margin-bottom:5px;font-family:var(--fm);font-size:10px"><div style="color:var(--t2);margin-bottom:2px">MTR-005 — Grace Nyamweru</div><div style="color:var(--wa)">TZS 5,000 · 2.92 kWh · low credit ⚠</div></div>
+          <div style="background:rgba(255,77,79,.04);border:1px solid rgba(255,77,79,.15);border-radius:7px;padding:9px 10px;margin-bottom:11px;font-family:var(--fm);font-size:10px"><div style="color:var(--t2);margin-bottom:2px">MTR-010 — Pastor Elias</div><div style="color:var(--da)">TZS 10,000 · 5.85 kWh · disconnected ✗</div></div>
+          <div style="display:flex;align-items:center;gap:6px;padding-top:10px;border-top:1px solid var(--b0);font-size:10px"><div style="width:5px;height:5px;border-radius:50%;background:var(--em)"></div><span style="color:var(--t2)">Last sync: 07:14 · 7 payments confirmed</span></div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const M=[
+  {id:'MTR-001',nm:'Amina Hassan',tp:'residential',bl:5200,br:'Hexing',pw:42,cn:true,tx:false},
+  {id:'MTR-002',nm:'Joseph Mwangi',tp:'residential',bl:12800,br:'Hexing',pw:128,cn:true,tx:false},
+  {id:'MTR-003',nm:'Mama Pima Duka',tp:'business',bl:28000,br:'SparkMeter',pw:86,cn:true,tx:false},
+  {id:'MTR-004',nm:'Baraka Fishing',tp:'productive',bl:45000,br:'SparkMeter',pw:240,cn:true,tx:true},
+  {id:'MTR-005',nm:'Grace Nyamweru',tp:'residential',bl:680,br:'Hexing',pw:18,cn:true,tx:false},
+  {id:'MTR-006',nm:'St. Peter School',tp:'productive',bl:67000,br:'Hexing',pw:195,cn:true,tx:false},
+  {id:'MTR-007',nm:'Ali Dispensary',tp:'business',bl:32000,br:'Conlog',pw:54,cn:true,tx:false},
+  {id:'MTR-008',nm:'Zawadi Restaurant',tp:'business',bl:19500,br:'Hexing',pw:210,cn:true,tx:false},
+  {id:'MTR-009',nm:'Farida Tailoring',tp:'business',bl:7200,br:'SparkMeter',pw:72,cn:true,tx:false},
+  {id:'MTR-010',nm:'Pastor Elias',tp:'residential',bl:0,br:'Hexing',pw:0,cn:false,tx:false},
+];
+const AL=[
+  {sv:'critical',tp:'TAMPER',mg:'MTR-004 Baraka Fishing Co — tamper confirmed',t:'17:55'},
+  {sv:'high',tp:'LOW CREDIT',mg:'MTR-005 Grace Nyamweru — TZS 680 remaining',t:'18:02'},
+  {sv:'high',tp:'DISCONNECTED',mg:'MTR-010 Pastor Elias — zero balance',t:'06:12'},
+];
+const SC={critical:'var(--da)',high:'var(--wa)',medium:'var(--wa)',low:'var(--t3)'};
+let tick=0,hist=Array(40).fill(0),LC,RC,rcDone=false;
+
+function go(el){
+  if(!el)return;
+  const pg=el.dataset.pg;
+  document.querySelectorAll('.ni').forEach(n=>n.classList.remove('on'));
+  document.querySelectorAll('.pg').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
+  const p=document.getElementById('pg-'+pg);
+  if(p)p.classList.add('on');
+  document.getElementById('bc').textContent=el.textContent.trim().replace(/\d+$/,'').trim();
+  if(pg==='planning')setTimeout(drawMap,80);
+  if(pg==='analytics'&&!rcDone)setTimeout(drawRevChart,80);
+}
+
+function setlang(b){document.querySelectorAll('.lb').forEach(x=>x.classList.remove('on'));b.classList.add('on')}
+function sa(v,b){document.getElementById('ta').value=v;document.querySelectorAll('#pg-topup .fp-b').forEach(x=>x.classList.remove('on'));b.classList.add('on');ck()}
+function ck(){const v=parseFloat(document.getElementById('ta').value)||0;document.getElementById('ck-v').textContent=`= ${(v/1710).toFixed(2)} kWh · TZS 1,710/kWh`;document.getElementById('btn-amt').textContent=v.toLocaleString()}
+function issueToken(){const d=()=>Math.floor(1000+Math.random()*8999);document.getElementById('tok-val').textContent=`${d()}-${d()}-${d()}-${d()}-${d()}`;document.getElementById('tok-res').style.display='block'}
+function fc(f,b){document.querySelectorAll('#cf .fp-b').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderC(f)}
+function fa(f,b){document.querySelectorAll('#alf .fp-b').forEach(x=>x.classList.remove('on'));b.classList.add('on');renderAP(f)}
+
+function renderMG(){
+  const g=document.getElementById('mg');if(!g)return;
+  g.innerHTML=M.map(m=>{
+    const d=!m.cn||m.bl<=0,lo=m.bl>0&&m.bl<3000,cl='mt'+(d?' disc':m.tx?' tamper':lo?' low':'');
+    const c=d?'var(--da)':m.tx?'var(--wa)':lo?'var(--wa)':'var(--em)';
+    return`<div class="${cl}"><div class="mt-top"><span class="mt-id">${m.id}</span><span class="mt-d" style="background:${c}"></span></div><div class="mt-pw" style="color:${c}">${d?'OFF':`${m.pw}W`}</div><div class="mt-bal" style="color:${c}">${d?'TZS 0':`TZS ${m.bl.toLocaleString()}`}</div>${m.tx?'<div class="mt-warn">⚠ TAMPER</div>':''}</div>`;
+  }).join('');
+}
+
+function renderMT(){
+  const tb=document.getElementById('mtb');if(!tb)return;
+  tb.innerHTML=M.map(m=>{
+    const d=!m.cn||m.bl<=0,lo=m.bl>0&&m.bl<3000;
+    const sb=d?'<span class="bd bd-da">Disconnected</span>':m.tx?'<span class="bd bd-wa">Tamper</span>':'<span class="bd bd-ok">Active</span>';
+    const bc=d?'var(--da)':lo?'var(--wa)':'var(--em)';
+    return`<tr><td class="tn tm">${m.id}</td><td>${m.nm}</td><td class="tm" style="font-size:10px;color:var(--t3)">${m.br}</td><td>${sb}</td><td class="tm">${d?'—':`${m.pw}W`}</td><td class="tm" style="color:var(--t2)">231V</td><td class="tm" style="color:${bc};font-weight:500">${m.bl.toLocaleString()}</td><td class="tm" style="font-size:10px;color:var(--t3)">-70 dBm</td></tr>`;
+  }).join('');
+}
+
+function renderC(f='all'){
+  const tb=document.getElementById('ctb');if(!tb)return;
+  const fl=M.filter(m=>f==='all'||(f==='low'&&m.bl>0&&m.bl<3000)||(f==='zero'&&m.bl<=0)||(f==='productive'&&m.tp==='productive'));
+  const scores={residential:75,business:72,productive:88};
+  tb.innerHTML=fl.map(m=>{
+    const d=m.bl<=0,lo=m.bl>0&&m.bl<3000,bc=d?'var(--da)':lo?'var(--wa)':'var(--em)';
+    const sc=scores[m.tp]||72,sc2=sc>=80?'var(--em)':sc>=65?'var(--in)':sc>=50?'var(--wa)':'var(--da)';
+    const r=13,ci=2*Math.PI*r,da=(sc/100)*ci;
+    const tb2=m.tp==='productive'?'bd-wa':m.tp==='business'?'bd-in':'bd-nu';
+    const sb=d?'<span class="bd bd-da">Disconnected</span>':lo?'<span class="bd bd-wa">Low</span>':'<span class="bd bd-ok">Active</span>';
+    return`<tr><td><div class="tn">${m.nm}</div><div style="font-size:10px;color:var(--t3);font-family:var(--fm)">${m.id}</div></td><td><span class="bd ${tb2}">${m.tp}</span></td><td class="tm" style="color:var(--t2)">${m.id}</td><td class="tm" style="color:${bc};font-weight:500">${d?'TZS 0':`TZS ${m.bl.toLocaleString()}`}</td><td><svg width="30" height="30" viewBox="0 0 30 30"><circle cx="15" cy="15" r="${r}" fill="none" stroke="var(--elev)" stroke-width="2.5"/><circle cx="15" cy="15" r="${r}" fill="none" stroke="${sc2}" stroke-width="2.5" stroke-dasharray="${da} ${ci}" stroke-linecap="round" transform="rotate(-90 15 15)"/><text x="15" y="19" text-anchor="middle" font-family="monospace" font-size="7" font-weight="600" fill="${sc2}">${sc}</text></svg></td><td>${sb}</td><td><button class="btn btn-g btn-sm" onclick="go(document.querySelector('[data-pg=topup]'))">Top up</button></td></tr>`;
+  }).join('');
+}
+
+function renderAF(){
+  const f=document.getElementById('af');if(!f)return;
+  f.innerHTML=AL.slice(0,3).map(a=>`<div class="ai"><div class="as" style="background:${SC[a.sv]}"></div><div style="flex:1"><div class="at">${a.tp}</div><div class="am">${a.mg}</div></div><div class="atime">${a.t}</div></div>`).join('');
+}
+
+function renderAP(fl='all'){
+  const c=document.getElementById('alp');if(!c)return;
+  c.innerHTML=AL.filter(a=>fl==='all'||a.sv===fl).map(a=>`<div class="ai"><div class="as" style="background:${SC[a.sv]}"></div><div style="flex:1"><div class="at">${a.tp} <span class="bd bd-${a.sv==='critical'?'da':'wa'}">${a.sv}</span></div><div class="am">${a.mg}</div></div><div style="display:flex;align-items:flex-start;gap:7px"><div class="atime">${a.t}</div><button class="btn btn-g btn-sm">Resolve</button></div></div>`).join('');
+}
+
+function initLC(){
+  const cv=document.getElementById('lc');if(!cv||LC)return;
+  LC=new Chart(cv,{type:'line',data:{labels:Array(40).fill(''),datasets:[{data:hist,borderColor:'#00d97e',borderWidth:1.5,fill:true,backgroundColor:'rgba(0,217,126,.07)',tension:.4,pointRadius:0}]},options:{responsive:true,maintainAspectRatio:false,animation:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{color:'#3d5068',font:{size:9},callback:v=>`${v}W`},grid:{color:'rgba(255,255,255,.03)'},border:{display:false}}}}});
+}
+
+function drawRevChart(){
+  const cv=document.getElementById('rc');if(!cv)return;
+  if(RC)RC.destroy();
+  RC=new Chart(cv,{type:'bar',data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],datasets:[{data:[82,94,76,108,98,122,89].map(v=>v*1000),backgroundColor:'#00d97e',borderRadius:4,borderSkipped:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#3d5068',font:{size:9}},grid:{display:false},border:{display:false}},y:{ticks:{color:'#3d5068',font:{size:9},callback:v=>`${v/1000}K`},grid:{color:'rgba(255,255,255,.03)'},border:{display:false}}}}});
+  rcDone=true;
+}
+
+function drawMap(){
+  const cv=document.getElementById('mapc');if(!cv)return;
+  const W=cv.offsetWidth||500,H=cv.offsetHeight||380;
+  cv.width=W;cv.height=H;
+  const ctx=cv.getContext('2d');
+  ctx.fillStyle='#060d18';ctx.fillRect(0,0,W,H);
+  for(let i=1;i<8;i++){ctx.strokeStyle='rgba(255,255,255,.025)';ctx.beginPath();ctx.moveTo(0,i*(H/8));ctx.lineTo(W,i*(H/8));ctx.stroke();}
+  for(let i=1;i<10;i++){ctx.beginPath();ctx.moveTo(i*(W/10),0);ctx.lineTo(i*(W/10),H);ctx.stroke();}
+  [{x:.35,y:.34,s:87,l:'Candidate A',c:'#00d97e'},{x:.58,y:.52,s:71,l:'Candidate B',c:'#4d9fff'},{x:.22,y:.64,s:52,l:'Candidate C',c:'#f5a623'},{x:.78,y:.28,s:28,l:'Candidate D',c:'#ff4d4f'},{x:.48,y:.77,s:0,l:'Existing site',c:'#3d5068'}].forEach(s=>{
+    const x=s.x*W,y=s.y*H,r=s.s>0?9:6;
+    ctx.beginPath();ctx.arc(x,y,r,0,Math.PI*2);ctx.fillStyle=s.c;ctx.globalAlpha=.85;ctx.fill();ctx.globalAlpha=1;
+    ctx.font='500 9.5px monospace';ctx.fillStyle=s.c;
+    ctx.fillText(`${s.l}${s.s?` · ${s.s}`:''}`,x+13,y+4);
+  });
+  ctx.font='9px monospace';ctx.fillStyle='#3d5068';
+  ctx.fillText('Tanzania · Lake Victoria region · candidate sites',12,H-12);
+}
+
+function tick_(){
+  tick++;
+  const load=Math.max(0,Math.round(M.filter(m=>m.cn&&m.bl>0).reduce((s,m)=>s+m.pw,0)+(Math.random()-.5)*60));
+  hist=[...hist.slice(1),load];
+  document.getElementById('lt').textContent=`Live · tick ${tick}`;
+  document.getElementById('tick-lbl').textContent=`tick ${tick}`;
+  document.getElementById('k-load').textContent=`${load}W`;
+  document.getElementById('k-util').textContent=`${(load/500).toFixed(1)}% of 50kW`;
+  document.getElementById('chart-v').textContent=`${load}W`;
+  if(LC){LC.data.datasets[0].data=[...hist];LC.update('none');}
+  renderMG();renderMT();
+}
+
+function init(){
+  renderMG();renderMT();renderC();renderAF();renderAP();
+  setTimeout(()=>{initLC();},200);
+  setInterval(tick_,3000);tick_();
+}
+init();
+</script>
+</body>
+</html>

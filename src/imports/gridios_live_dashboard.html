@@ -1,0 +1,469 @@
+
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--font-sans)}
+.shell{display:flex;height:620px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-lg);overflow:hidden;background:var(--color-background-primary)}
+.sidebar{width:180px;background:var(--color-background-secondary);border-right:0.5px solid var(--color-border-tertiary);display:flex;flex-direction:column;flex-shrink:0}
+.logo{padding:16px 14px 12px;border-bottom:0.5px solid var(--color-border-tertiary)}
+.logo-name{font-size:14px;font-weight:500;color:var(--color-text-primary)}
+.logo-site{font-size:11px;color:var(--color-text-tertiary);margin-top:2px}
+.live-dot{display:flex;align-items:center;gap:5px;margin-top:6px}
+.dot{width:6px;height:6px;border-radius:50%;background:#22c55e}
+.dot.off{background:#ef4444}
+.live-label{font-size:11px;color:var(--color-text-secondary)}
+nav{padding:8px 8px;flex:1}
+.nav-item{display:flex;align-items:center;gap:8px;padding:7px 8px;border-radius:6px;font-size:12px;color:var(--color-text-secondary);cursor:pointer;transition:background .1s}
+.nav-item:hover{background:var(--color-background-primary)}
+.nav-item.active{background:var(--color-background-primary);color:var(--color-text-primary);font-weight:500}
+.nav-icon{font-size:13px;width:16px;text-align:center}
+.main{flex:1;overflow:auto;padding:20px}
+.page{display:none}.page.active{display:block}
+.page-title{font-size:16px;font-weight:500;color:var(--color-text-primary);margin-bottom:4px}
+.page-sub{font-size:12px;color:var(--color-text-tertiary);margin-bottom:16px}
+.kpis{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-bottom:16px}
+.kpi{background:var(--color-background-secondary);border-radius:var(--border-radius-md);padding:10px 12px}
+.kpi-label{font-size:10px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;margin-bottom:4px}
+.kpi-val{font-size:20px;font-weight:500;color:var(--color-text-primary)}
+.kpi-sub{font-size:10px;color:var(--color-text-tertiary);margin-top:2px}
+.kpi-val.danger{color:var(--color-text-danger)}
+.kpi-val.warn{color:var(--color-text-warning)}
+.kpi-val.ok{color:var(--color-text-success)}
+.row2{display:grid;grid-template-columns:1fr 200px;gap:10px;margin-bottom:10px}
+.card{background:var(--color-background-primary);border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);padding:12px}
+.card-hd{font-size:11px;font-weight:500;color:var(--color-text-secondary);margin-bottom:10px;text-transform:uppercase;letter-spacing:.05em}
+.chart-wrap{position:relative;height:130px}
+.meter-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px}
+.meter-tile{padding:6px 8px;border-radius:6px;border:0.5px solid var(--color-border-tertiary);cursor:pointer}
+.meter-tile:hover{background:var(--color-background-secondary)}
+.meter-tile.disc{border-color:var(--color-border-danger);opacity:.7}
+.meter-tile.tamper{border-color:var(--color-border-warning)}
+.mt-id{font-size:10px;font-weight:500;color:var(--color-text-primary)}
+.mt-name{font-size:9px;color:var(--color-text-tertiary);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mt-row{display:flex;justify-content:space-between;align-items:center;margin-top:4px}
+.mt-pwr{font-size:10px;color:var(--color-text-secondary)}
+.mt-bal{font-size:10px;font-weight:500}
+.mt-bal.ok{color:var(--color-text-success)}
+.mt-bal.low{color:var(--color-text-warning)}
+.mt-bal.zero{color:var(--color-text-danger)}
+.alert-list{display:flex;flex-direction:column;gap:4px}
+.alert-item{display:flex;gap:6px;padding:5px 0;border-bottom:0.5px solid var(--color-border-tertiary);font-size:11px;color:var(--color-text-secondary)}
+.alert-item:last-child{border-bottom:none}
+.al-dot{width:5px;height:5px;border-radius:50%;margin-top:3px;flex-shrink:0}
+.al-dot.critical{background:#ef4444}
+.al-dot.high{background:#f97316}
+.al-dot.medium{background:#eab308}
+.badge{display:inline-block;font-size:9px;padding:1px 6px;border-radius:20px;font-weight:500}
+.badge-ok{background:var(--color-background-success);color:var(--color-text-success)}
+.badge-disc{background:var(--color-background-danger);color:var(--color-text-danger)}
+.badge-low{background:var(--color-background-warning);color:var(--color-text-warning)}
+.badge-tamper{background:var(--color-background-warning);color:var(--color-text-warning)}
+.customers-table{width:100%;font-size:11px;border-collapse:collapse}
+.customers-table th{text-align:left;padding:5px 8px;font-size:10px;color:var(--color-text-tertiary);text-transform:uppercase;letter-spacing:.05em;border-bottom:0.5px solid var(--color-border-tertiary)}
+.customers-table td{padding:6px 8px;border-bottom:0.5px solid var(--color-border-tertiary);color:var(--color-text-secondary)}
+.customers-table tr:last-child td{border-bottom:none}
+.customers-table tr:hover td{background:var(--color-background-secondary)}
+.analytics-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.tick{font-size:18px;margin-bottom:6px}
+.action-btn{padding:4px 10px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);font-size:11px;cursor:pointer;background:transparent;color:var(--color-text-primary)}
+.action-btn:hover{background:var(--color-background-secondary)}
+.ussd-screen{background:#1a1a2e;border-radius:var(--border-radius-md);padding:12px;font-family:var(--font-mono);font-size:11px;color:#a3e635;line-height:1.8}
+.ussd-title{color:#86efac;font-weight:500;margin-bottom:6px}
+.ussd-option{color:#d1fae5}
+.ussd-prompt{color:#94a3b8;margin-top:6px;font-size:10px}
+.pulse{animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.5}}
+</style>
+
+<div class="shell">
+  <div class="sidebar">
+    <div class="logo">
+      <div class="logo-name">GridOS</div>
+      <div class="logo-site">Ukerewe · Nansio</div>
+      <div class="live-dot">
+        <div class="dot pulse" id="live-dot"></div>
+        <span class="live-label" id="live-label">Live</span>
+      </div>
+    </div>
+    <nav>
+      <div class="nav-item active" onclick="showPage('dashboard',this)"><span class="nav-icon">◉</span>Dashboard</div>
+      <div class="nav-item" onclick="showPage('meters',this)"><span class="nav-icon">⚡</span>Meters</div>
+      <div class="nav-item" onclick="showPage('customers',this)"><span class="nav-icon">👤</span>Customers</div>
+      <div class="nav-item" onclick="showPage('alerts',this)"><span class="nav-icon">🔔</span>Alerts <span id="alert-badge" style="margin-left:auto;background:var(--color-background-danger);color:var(--color-text-danger);font-size:9px;padding:1px 5px;border-radius:20px"></span></div>
+      <div class="nav-item" onclick="showPage('ussd',this)"><span class="nav-icon">📱</span>USSD</div>
+      <div class="nav-item" onclick="showPage('analytics',this)"><span class="nav-icon">📊</span>Analytics</div>
+    </nav>
+    <div style="padding:10px 14px;border-top:0.5px solid var(--color-border-tertiary)">
+      <div style="font-size:10px;color:var(--color-text-tertiary)">Jumeme Rural Power</div>
+      <div style="font-size:10px;color:var(--color-text-tertiary);margin-top:2px" id="tick-counter">Tick 0</div>
+    </div>
+  </div>
+
+  <div class="main">
+
+    <!-- DASHBOARD -->
+    <div class="page active" id="page-dashboard">
+      <div class="page-title">Site overview</div>
+      <div class="page-sub">50 kW capacity · 10 meters · updating every 3s</div>
+      <div class="kpis">
+        <div class="kpi"><div class="kpi-label">Connected</div><div class="kpi-val ok" id="kpi-connected">—</div><div class="kpi-sub">of 10 meters</div></div>
+        <div class="kpi"><div class="kpi-label">Total load</div><div class="kpi-val" id="kpi-load">—</div><div class="kpi-sub" id="kpi-util">—% capacity</div></div>
+        <div class="kpi"><div class="kpi-label">Zero balance</div><div class="kpi-val" id="kpi-zero">—</div><div class="kpi-sub">need top-up</div></div>
+        <div class="kpi"><div class="kpi-label">Revenue today</div><div class="kpi-val ok" id="kpi-rev">—</div><div class="kpi-sub">TZS collected</div></div>
+      </div>
+      <div class="row2">
+        <div class="card">
+          <div class="card-hd">Site load — live (W)</div>
+          <div class="chart-wrap"><canvas id="load-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Alerts</div>
+          <div class="alert-list" id="alert-list"><div style="font-size:11px;color:var(--color-text-tertiary)">Monitoring...</div></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-hd">Live meter feed</div>
+        <div class="meter-grid" id="meter-grid"></div>
+      </div>
+    </div>
+
+    <!-- METERS -->
+    <div class="page" id="page-meters">
+      <div class="page-title">Meters</div>
+      <div class="page-sub">Live telemetry — all 10 meters</div>
+      <div class="card"><table class="customers-table" id="meters-table">
+        <thead><tr><th>Meter</th><th>Customer</th><th>Status</th><th>Power</th><th>Voltage</th><th>Balance (TZS)</th><th>Signal</th></tr></thead>
+        <tbody id="meters-tbody"></tbody>
+      </table></div>
+    </div>
+
+    <!-- CUSTOMERS -->
+    <div class="page" id="page-customers">
+      <div class="page-title">Customers</div>
+      <div class="page-sub">10 registered · Ukerewe Island site</div>
+      <div class="card"><table class="customers-table">
+        <thead><tr><th>Name</th><th>Type</th><th>Meter</th><th>Balance</th><th>Status</th><th>Action</th></tr></thead>
+        <tbody id="customers-tbody"></tbody>
+      </table></div>
+    </div>
+
+    <!-- ALERTS -->
+    <div class="page" id="page-alerts">
+      <div class="page-title">Alerts</div>
+      <div class="page-sub">Live alert feed — all sites</div>
+      <div id="alerts-full" style="display:flex;flex-direction:column;gap:6px"></div>
+    </div>
+
+    <!-- USSD PREVIEW -->
+    <div class="page" id="page-ussd">
+      <div class="page-title">USSD customer portal</div>
+      <div class="page-sub">What customers see when dialling *150*00#</div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="card">
+          <div class="card-hd">Main menu (level 0)</div>
+          <div class="ussd-screen">
+            <div class="ussd-title">GridOS Huduma za Umeme</div>
+            <div id="ussd-greeting">Habari Amina! Salio: TZS 4,980</div>
+            <div style="margin-top:8px">
+              <div class="ussd-option">1. Angalia salio</div>
+              <div class="ussd-option">2. Nunua tokeni</div>
+              <div class="ussd-option">3. Ripoti tatizo</div>
+              <div class="ussd-option">4. Malipo ya mwisho</div>
+              <div class="ussd-option">5. Wasiliana na wakala</div>
+            </div>
+            <div class="ussd-prompt">Reply: _</div>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Token purchase flow (level 2→3)</div>
+          <div class="ussd-screen">
+            <div class="ussd-title">Thibitisha ununuzi:</div>
+            <div>TZS 5,000 = 2.92 kWh</div>
+            <div style="margin-top:8px">
+              <div class="ussd-option">1. Thibitisha (Confirm)</div>
+              <div class="ussd-option">2. Ghairi (Cancel)</div>
+            </div>
+            <div style="margin-top:12px;padding-top:8px;border-top:1px solid #2d3748">
+              <div style="color:#86efac">✓ Token issued:</div>
+              <div id="ussd-token" style="font-size:13px;font-weight:500;letter-spacing:.1em;color:#a3e635;margin-top:4px">1234-5678-9012-3456-7890</div>
+              <div style="color:#94a3b8;font-size:10px;margin-top:4px">SMS sent to +255711***001</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ANALYTICS -->
+    <div class="page" id="page-analytics">
+      <div class="page-title">Analytics</div>
+      <div class="page-sub">Revenue · energy · collection rate</div>
+      <div class="analytics-grid">
+        <div class="card">
+          <div class="card-hd">Daily revenue — last 7 days (TZS)</div>
+          <div class="chart-wrap"><canvas id="rev-chart"></canvas></div>
+        </div>
+        <div class="card">
+          <div class="card-hd">Customers by balance tier</div>
+          <div class="chart-wrap"><canvas id="tier-chart"></canvas></div>
+        </div>
+        <div class="card" style="grid-column:span 2">
+          <div class="card-hd">Key metrics</div>
+          <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:4px">
+            <div><div style="font-size:10px;color:var(--color-text-tertiary)">ARPU / month</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary);margin-top:2px">TZS 18,400</div></div>
+            <div><div style="font-size:10px;color:var(--color-text-tertiary)">Collection rate</div><div style="font-size:18px;font-weight:500;color:var(--color-text-success);margin-top:2px">78%</div></div>
+            <div><div style="font-size:10px;color:var(--color-text-tertiary)">Energy sold / generated</div><div style="font-size:18px;font-weight:500;color:var(--color-text-primary);margin-top:2px">94.5%</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.js"></script>
+<script>
+const METERS = [
+  {id:'MTR-001',name:'Amina Hassan',      type:'residential', balance:5200, profile:'low',    brand:'Hexing'},
+  {id:'MTR-002',name:'Joseph Mwangi',     type:'residential', balance:12800,profile:'mid',    brand:'Hexing'},
+  {id:'MTR-003',name:'Mama Pima Duka',    type:'business',    balance:28000,profile:'biz',    brand:'SparkMeter'},
+  {id:'MTR-004',name:'Baraka Fishing Co', type:'productive',  balance:45000,profile:'heavy',  brand:'SparkMeter'},
+  {id:'MTR-005',name:'Grace Nyamweru',    type:'residential', balance:800,  profile:'low',    brand:'Hexing'},
+  {id:'MTR-006',name:'St. Peter School',  type:'productive',  balance:67000,profile:'school', brand:'Hexing'},
+  {id:'MTR-007',name:'Ali Dispensary',    type:'business',    balance:32000,profile:'clinic', brand:'Conlog'},
+  {id:'MTR-008',name:'Zawadi Restaurant', type:'business',    balance:19500,profile:'rest',   brand:'Hexing'},
+  {id:'MTR-009',name:'Farida Tailoring',  type:'business',    balance:7200, profile:'biz',    brand:'SparkMeter'},
+  {id:'MTR-010',name:'Pastor Elias',      type:'residential', balance:0,    profile:'zero',   brand:'Hexing'},
+];
+
+const TARIFF = {residential:1710,business:1560,productive:1310};
+const PROFILES = {
+  low:[5,5,5,5,5,5,10,20,15,10,10,10,15,10,10,10,15,30,40,50,45,35,20,10],
+  mid:[10,10,10,10,10,10,20,40,30,20,20,25,30,20,20,20,30,80,120,150,120,80,40,20],
+  biz:[5,5,5,5,5,5,5,60,80,90,90,90,90,90,90,90,90,90,70,50,30,15,10,5],
+  heavy:[200,180,160,140,120,200,250,300,280,260,240,200,180,160,140,120,100,200,280,300,260,240,220,200],
+  school:[5,5,5,5,5,5,5,30,200,250,250,250,200,200,200,200,150,50,20,10,10,10,5,5],
+  clinic:[40,40,40,40,40,40,40,60,80,100,100,100,100,80,80,80,80,80,60,60,50,50,45,40],
+  rest:[5,5,5,5,5,100,200,250,150,50,40,200,250,200,80,50,40,200,300,280,180,80,30,10],
+  zero:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+};
+
+let state = METERS.map(m=>({...m,power:0,voltage:230,tamper:false,rssi:-70}));
+let alerts=[], tick=0, revenueToday=0;
+const loadHistory=Array(20).fill(0);
+const revenueHistory=[110,145,98,167,132,155,0].map((v,i)=>i<6?v*1000:0);
+
+function vr(base,pct=0.15){return base*(1+(Math.random()-.5)*2*pct)}
+function getPower(m){
+  if(m.balance<=0)return 0;
+  const h=new Date().getHours();
+  const p=PROFILES[m.profile]||PROFILES.low;
+  return Math.max(0,Math.round(vr(p[h],0.2)));
+}
+
+function mkToken(){
+  const d=()=>Math.floor(1000+Math.random()*8999);
+  return `${d()}-${d()}-${d()}-${d()}-${d()}`;
+}
+
+function tick_sim(){
+  tick++;
+  document.getElementById('tick-counter').textContent=`Tick ${tick}`;
+  let totalLoad=0, zeroCount=0, earned=0;
+
+  state.forEach(m=>{
+    m.power=getPower(m);
+    totalLoad+=m.power;
+    const kwh=(m.power*3)/3600000;
+    const cost=kwh*TARIFF[m.type];
+    if(m.balance>0){
+      m.balance=Math.max(0,m.balance-cost);
+      earned+=cost;
+    }
+    if(m.balance<=0) zeroCount++;
+    m.voltage=m.power>200?Math.round(vr(218,0.03)):Math.round(vr(230,0.015));
+    m.rssi=Math.round(vr(-70,0.15));
+    if(!m.tamper&&Math.random()<0.003) m.tamper=true;
+
+    if(m.balance<=0&&m.balance>-1){
+      const prev=alerts.find(a=>a.type==='DISCONNECTED'&&a.mid===m.id);
+      if(!prev) alerts.unshift({type:'DISCONNECTED',sev:'high',msg:`${m.name} disconnected — zero balance`,mid:m.id,t:new Date().toLocaleTimeString()});
+    }
+    if(m.balance>0&&m.balance<3000){
+      const prev=alerts.find(a=>a.type==='LOW_CREDIT'&&a.mid===m.id);
+      if(!prev) alerts.unshift({type:'LOW_CREDIT',sev:'medium',msg:`${m.name} low credit: TZS ${Math.round(m.balance)}`,mid:m.id,t:new Date().toLocaleTimeString()});
+    }
+    if(m.tamper){
+      const prev=alerts.find(a=>a.type==='TAMPER'&&a.mid===m.id);
+      if(!prev) alerts.unshift({type:'TAMPER',sev:'critical',msg:`Tamper detected — ${m.id} (${m.name})`,mid:m.id,t:new Date().toLocaleTimeString()});
+    }
+  });
+
+  revenueToday+=earned;
+  alerts=alerts.slice(0,20);
+  loadHistory.push(Math.round(totalLoad));
+  loadHistory.shift();
+  if(tick%20===0) revenueHistory.push(Math.round(revenueToday));
+
+  renderAll(totalLoad, zeroCount);
+  document.getElementById('ussd-greeting').textContent=`Habari ${state[0].name.split(' ')[0]}! Salio: TZS ${Math.round(state[0].balance).toLocaleString()}`;
+  document.getElementById('ussd-token').textContent=mkToken();
+}
+
+function renderAll(totalLoad, zeroCount){
+  const conn=state.filter(m=>m.balance>0).length;
+  const util=Math.round((totalLoad/50000)*100);
+
+  document.getElementById('kpi-connected').textContent=conn;
+  document.getElementById('kpi-connected').className='kpi-val '+(conn>=8?'ok':conn>=6?'warn':'danger');
+  document.getElementById('kpi-load').textContent=Math.round(totalLoad)+'W';
+  document.getElementById('kpi-util').textContent=`${util}% capacity`;
+  document.getElementById('kpi-zero').textContent=zeroCount;
+  document.getElementById('kpi-zero').className='kpi-val '+(zeroCount===0?'ok':zeroCount<=2?'warn':'danger');
+  document.getElementById('kpi-rev').textContent='TZS '+Math.round(revenueToday).toLocaleString();
+
+  const ab=document.getElementById('alert-badge');
+  const crit=alerts.filter(a=>a.sev==='critical').length;
+  ab.textContent=alerts.length>0?alerts.length:'';
+
+  renderMeterGrid();
+  renderMeterTable();
+  renderCustomerTable();
+  renderAlertList();
+  renderAlertFull();
+  updateLoadChart();
+}
+
+function renderMeterGrid(){
+  const g=document.getElementById('meter-grid');
+  g.innerHTML=state.map(m=>{
+    const disc=m.balance<=0;
+    const low=m.balance>0&&m.balance<3000;
+    const balCls=disc?'zero':low?'low':'ok';
+    const tileCls=disc?'meter-tile disc':m.tamper?'meter-tile tamper':'meter-tile';
+    return `<div class="${tileCls}">
+      <div class="mt-id">${m.id}</div>
+      <div class="mt-name">${m.name}</div>
+      <div class="mt-row">
+        <span class="mt-pwr">${disc?'OFF':m.power+'W'}</span>
+        <span class="mt-bal ${balCls}">TZS ${disc?'0':Math.round(m.balance).toLocaleString()}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMeterTable(){
+  const tbody=document.getElementById('meters-tbody');
+  if(!tbody)return;
+  tbody.innerHTML=state.map(m=>{
+    const disc=m.balance<=0;
+    const st=disc?'<span class="badge badge-disc">Off</span>':m.tamper?'<span class="badge badge-tamper">Tamper</span>':'<span class="badge badge-ok">Active</span>';
+    const balCls=disc?'color:var(--color-text-danger)':m.balance<3000?'color:var(--color-text-warning)':'';
+    return `<tr>
+      <td style="font-weight:500;color:var(--color-text-primary)">${m.id}</td>
+      <td>${m.name}</td>
+      <td>${st}</td>
+      <td>${disc?'—':m.power+'W'}</td>
+      <td>${m.voltage}V</td>
+      <td style="${balCls}">${Math.round(m.balance).toLocaleString()}</td>
+      <td style="color:var(--color-text-tertiary)">${m.rssi} dBm</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderCustomerTable(){
+  const tbody=document.getElementById('customers-tbody');
+  if(!tbody)return;
+  tbody.innerHTML=state.map(m=>{
+    const disc=m.balance<=0;
+    const low=m.balance>0&&m.balance<3000;
+    const st=disc?'<span class="badge badge-disc">Disc.</span>':low?'<span class="badge badge-low">Low</span>':'<span class="badge badge-ok">OK</span>';
+    const btn=disc?`<button class="action-btn" onclick="topUp('${m.id}')">Top up</button>`:'—';
+    return `<tr>
+      <td style="font-weight:500;color:var(--color-text-primary)">${m.name}</td>
+      <td style="text-transform:capitalize">${m.type}</td>
+      <td>${m.id}</td>
+      <td style="${disc?'color:var(--color-text-danger)':low?'color:var(--color-text-warning)':''}">TZS ${Math.round(m.balance).toLocaleString()}</td>
+      <td>${st}</td>
+      <td>${btn}</td>
+    </tr>`;
+  }).join('');
+}
+
+function renderAlertList(){
+  const el=document.getElementById('alert-list');
+  if(!el)return;
+  if(alerts.length===0){el.innerHTML='<div style="font-size:11px;color:var(--color-text-tertiary)">All clear</div>';return;}
+  el.innerHTML=alerts.slice(0,5).map(a=>`
+    <div class="alert-item">
+      <div class="al-dot ${a.sev}"></div>
+      <span>${a.msg}</span>
+    </div>`).join('');
+}
+
+function renderAlertFull(){
+  const el=document.getElementById('alerts-full');
+  if(!el)return;
+  if(alerts.length===0){el.innerHTML='<div style="padding:20px;text-align:center;font-size:12px;color:var(--color-text-tertiary)">No alerts</div>';return;}
+  el.innerHTML=alerts.map(a=>`
+    <div style="display:flex;gap:8px;padding:8px 10px;border:0.5px solid var(--color-border-tertiary);border-radius:var(--border-radius-md);font-size:11px">
+      <div class="al-dot ${a.sev}" style="margin-top:4px"></div>
+      <div style="flex:1">
+        <div style="color:var(--color-text-primary);font-weight:500">${a.type}</div>
+        <div style="color:var(--color-text-secondary);margin-top:2px">${a.msg}</div>
+      </div>
+      <div style="color:var(--color-text-tertiary);font-size:10px;flex-shrink:0">${a.t}</div>
+    </div>`).join('');
+}
+
+function topUp(mid){
+  const m=state.find(x=>x.id===mid);
+  if(m){m.balance+=5000;renderAll(state.reduce((s,x)=>s+x.power,0),state.filter(x=>x.balance<=0).length);}
+}
+
+let loadChart, revChart, tierChart;
+
+function initCharts(){
+  const isDark=window.matchMedia('(prefers-color-scheme:dark)').matches;
+  const textColor=isDark?'#94a3b8':'#888780';
+  const gridColor=isDark?'rgba(255,255,255,0.06)':'rgba(0,0,0,0.06)';
+
+  loadChart=new Chart(document.getElementById('load-chart'),{
+    type:'line',
+    data:{labels:Array(20).fill(''),datasets:[{data:loadHistory,borderColor:'#1D9E75',borderWidth:1.5,fill:true,backgroundColor:'rgba(29,158,117,0.08)',tension:.4,pointRadius:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{display:false},y:{ticks:{color:textColor,font:{size:10}},grid:{color:gridColor},border:{display:false}}}}
+  });
+
+  revChart=new Chart(document.getElementById('rev-chart'),{
+    type:'bar',
+    data:{labels:['Mon','Tue','Wed','Thu','Fri','Sat','Today'],datasets:[{data:revenueHistory,backgroundColor:'#1D9E75',borderRadius:3}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}},scales:{x:{ticks:{color:textColor,font:{size:10}},grid:{display:false},border:{display:false}},y:{ticks:{color:textColor,font:{size:10},callback:v=>'TZS '+(v/1000).toFixed(0)+'K'},grid:{color:gridColor},border:{display:false}}}}
+  });
+
+  tierChart=new Chart(document.getElementById('tier-chart'),{
+    type:'doughnut',
+    data:{labels:['Healthy (>3K)','Low (<3K)','Zero'],datasets:[{data:[7,2,1],backgroundColor:['#1D9E75','#EF9F27','#E24B4A'],borderWidth:0}]},
+    options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{position:'bottom',labels:{color:textColor,font:{size:10},boxWidth:10,padding:8}}},cutout:'65%'}
+  });
+}
+
+function updateLoadChart(){
+  if(!loadChart)return;
+  loadChart.data.datasets[0].data=[...loadHistory];
+  loadChart.update('none');
+  const tierData=[
+    state.filter(m=>m.balance>=3000).length,
+    state.filter(m=>m.balance>0&&m.balance<3000).length,
+    state.filter(m=>m.balance<=0).length
+  ];
+  tierChart.data.datasets[0].data=tierData;
+  tierChart.update('none');
+}
+
+function showPage(id,el){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.remove('active'));
+  document.getElementById('page-'+id).classList.add('active');
+  el.classList.add('active');
+}
+
+setTimeout(()=>{initCharts();tick_sim();setInterval(tick_sim,3000);},100);
+</script>
