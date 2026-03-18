@@ -1,6 +1,10 @@
 import { useTranslation } from 'react-i18next';
-import { MapPin, Sun, Users, DollarSign, Zap, Map as MapIcon } from 'lucide-react';
+import { MapPin, Sun, Users, DollarSign, Zap, Map as MapIcon, Layers } from 'lucide-react';
 import { useState } from 'react';
+import { APIProvider, Map, AdvancedMarker, Pin, InfoWindow } from '@vis.gl/react-google-maps';
+
+// Google Maps API Key - user needs to provide this
+const GOOGLE_MAPS_API_KEY = import.meta.env.VITE_GOOGLE_MAPS_API_KEY || '';
 
 export default function SitePlanning() {
   const { t } = useTranslation();
@@ -8,8 +12,10 @@ export default function SitePlanning() {
   const [result, setResult] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [viewMode, setViewMode] = useState<'map' | 'form'>('map');
+  const [mapType, setMapType] = useState<'roadmap' | 'satellite' | 'terrain'>('terrain');
+  const [selectedMarker, setSelectedMarker] = useState<string | null>(null);
 
-  // Candidate locations for map view
+  // Candidate locations for map view (Tanzania - Lake Victoria region)
   const candidates = [
     { id: 'A', lat: -2.014, lng: 33.021, score: 87, label: 'Candidate A', color: '#10b981' },
     { id: 'B', lat: -2.134, lng: 32.954, score: 71, label: 'Candidate B', color: '#378ADD' },
@@ -17,8 +23,12 @@ export default function SitePlanning() {
     { id: 'D', lat: -2.285, lng: 33.104, score: 28, label: 'Candidate D', color: '#E24B4A' },
   ];
 
-  const existingSite = { lat: -2.061, lng: 32.912, label: 'Existing site' };
+  const existingSite = { lat: -2.061, lng: 32.912, label: 'Nansio Site (Existing)' };
   const [selectedCandidate, setSelectedCandidate] = useState(candidates[0]);
+
+  // Center on Lake Victoria region (Tanzania)
+  const mapCenter = { lat: -2.15, lng: 32.95 };
+  const mapZoom = 10;
 
   const handleScore = () => {
     if (!location.lat || !location.lng) {
@@ -131,69 +141,125 @@ export default function SitePlanning() {
             borderColor: 'var(--bg-border-subtle)',
             height: '600px'
           }}>
-            <div className="absolute top-4 left-4 px-3 py-1.5 rounded" style={{
-              backgroundColor: 'var(--bg-surface)',
-              color: 'var(--text-muted)',
-              fontSize: 'var(--text-small)',
-              zIndex: 10
-            }}>
-              Map box GL — Tanzania · Lake Victoria region
+            {/* Map Type Selector */}
+            <div className="absolute top-4 left-4 flex gap-2" style={{ zIndex: 10 }}>
+              <div className="flex rounded overflow-hidden" style={{ backgroundColor: 'var(--bg-surface)' }}>
+                <button
+                  onClick={() => setMapType('roadmap')}
+                  className="px-3 py-1.5 text-xs font-medium transition-colors"
+                  style={{
+                    backgroundColor: mapType === 'roadmap' ? 'var(--brand-emerald)' : 'transparent',
+                    color: mapType === 'roadmap' ? '#ffffff' : 'var(--text-muted)'
+                  }}
+                >
+                  Road
+                </button>
+                <button
+                  onClick={() => setMapType('terrain')}
+                  className="px-3 py-1.5 text-xs font-medium transition-colors"
+                  style={{
+                    backgroundColor: mapType === 'terrain' ? 'var(--brand-emerald)' : 'transparent',
+                    color: mapType === 'terrain' ? '#ffffff' : 'var(--text-muted)'
+                  }}
+                >
+                  <Layers className="w-3 h-3 inline mr-1" />
+                  Terrain
+                </button>
+                <button
+                  onClick={() => setMapType('satellite')}
+                  className="px-3 py-1.5 text-xs font-medium transition-colors"
+                  style={{
+                    backgroundColor: mapType === 'satellite' ? 'var(--brand-emerald)' : 'transparent',
+                    color: mapType === 'satellite' ? '#ffffff' : 'var(--text-muted)'
+                  }}
+                >
+                  Satellite
+                </button>
+              </div>
             </div>
 
-            {/* Simulated Map Grid */}
-            <div className="w-full h-full relative" style={{ backgroundColor: '#0a1929' }}>
-              {/* Grid lines */}
-              <svg className="absolute inset-0 w-full h-full opacity-20">
-                {Array.from({ length: 20 }).map((_, i) => (
-                  <g key={i}>
-                    <line x1={i * 50} y1="0" x2={i * 50} y2="600" stroke="#1e3050" strokeWidth="1" />
-                    <line x1="0" y1={i * 30} x2="100%" y2={i * 30} stroke="#1e3050" strokeWidth="1" />
-                  </g>
-                ))}
-              </svg>
+            {GOOGLE_MAPS_API_KEY ? (
+              <APIProvider apiKey={GOOGLE_MAPS_API_KEY}>
+                <Map
+                  defaultCenter={mapCenter}
+                  defaultZoom={mapZoom}
+                  mapId="gridios-site-planning"
+                  mapTypeId={mapType}
+                  disableDefaultUI={false}
+                  gestureHandling="greedy"
+                  style={{ width: '100%', height: '100%' }}
+                >
+                  {/* Existing Site Marker */}
+                  <AdvancedMarker
+                    position={{ lat: existingSite.lat, lng: existingSite.lng }}
+                    onClick={() => setSelectedMarker('existing')}
+                  >
+                    <Pin background="#378ADD" borderColor="#ffffff" glyphColor="#ffffff" />
+                  </AdvancedMarker>
+                  {selectedMarker === 'existing' && (
+                    <InfoWindow
+                      position={{ lat: existingSite.lat, lng: existingSite.lng }}
+                      onCloseClick={() => setSelectedMarker(null)}
+                    >
+                      <div style={{ padding: '8px', color: '#000' }}>
+                        <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>{existingSite.label}</div>
+                        <div style={{ fontSize: '12px', color: '#666' }}>
+                          {existingSite.lat.toFixed(4)}, {existingSite.lng.toFixed(4)}
+                        </div>
+                      </div>
+                    </InfoWindow>
+                  )}
 
-              {/* Existing Site Marker */}
-              <div
-                className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer"
-                style={{
-                  left: `${((existingSite.lng + 33) / 0.3) * 100}%`,
-                  top: `${((existingSite.lat + 2.3) / 0.3) * 100}%`,
-                }}
-              >
-                <div className="flex flex-col items-center gap-1">
-                  <div className="w-3 h-3 rounded-full" style={{ backgroundColor: '#378ADD' }} />
-                  <div className="text-xs whitespace-nowrap" style={{ color: '#378ADD', fontSize: '10px' }}>
-                    {existingSite.label}
-                  </div>
+                  {/* Candidate Markers */}
+                  {candidates.map((candidate) => (
+                    <div key={candidate.id}>
+                      <AdvancedMarker
+                        position={{ lat: candidate.lat, lng: candidate.lng }}
+                        onClick={() => {
+                          handleCandidateClick(candidate);
+                          setSelectedMarker(candidate.id);
+                        }}
+                      >
+                        <Pin background={candidate.color} borderColor="#ffffff" glyphColor="#ffffff" />
+                      </AdvancedMarker>
+                      {selectedMarker === candidate.id && (
+                        <InfoWindow
+                          position={{ lat: candidate.lat, lng: candidate.lng }}
+                          onCloseClick={() => setSelectedMarker(null)}
+                        >
+                          <div style={{ padding: '8px', color: '#000' }}>
+                            <div style={{ fontWeight: 'bold', marginBottom: '4px' }}>
+                              {candidate.label}
+                            </div>
+                            <div style={{ fontSize: '12px', color: '#666', marginBottom: '4px' }}>
+                              {candidate.lat.toFixed(4)}, {candidate.lng.toFixed(4)}
+                            </div>
+                            <div style={{ fontSize: '14px', fontWeight: 'bold', color: candidate.color }}>
+                              Score: {candidate.score}/100
+                            </div>
+                          </div>
+                        </InfoWindow>
+                      )}
+                    </div>
+                  ))}
+                </Map>
+              </APIProvider>
+            ) : (
+              <div className="w-full h-full flex items-center justify-center" style={{ backgroundColor: '#0a1929' }}>
+                <div className="text-center p-8">
+                  <MapIcon className="w-16 h-16 mx-auto mb-4" style={{ color: 'var(--text-faint)' }} />
+                  <h3 className="text-lg font-semibold mb-2" style={{ color: 'var(--text-primary)' }}>
+                    Google Maps API Key Required
+                  </h3>
+                  <p className="text-sm mb-4" style={{ color: 'var(--text-muted)' }}>
+                    Add VITE_GOOGLE_MAPS_API_KEY to your .env file to enable interactive maps.
+                  </p>
+                  <p className="text-xs" style={{ color: 'var(--text-faint)' }}>
+                    Get a free API key at: <a href="https://console.cloud.google.com/google/maps-apis" target="_blank" rel="noopener noreferrer" style={{ color: 'var(--brand-emerald)' }}>Google Cloud Console</a>
+                  </p>
                 </div>
               </div>
-
-              {/* Candidate Markers */}
-              {candidates.map((candidate) => (
-                <div
-                  key={candidate.id}
-                  className="absolute transform -translate-x-1/2 -translate-y-1/2 cursor-pointer hover:scale-110 transition-transform"
-                  style={{
-                    left: `${((candidate.lng + 33) / 0.3) * 100}%`,
-                    top: `${((candidate.lat + 2.3) / 0.3) * 100}%`,
-                  }}
-                  onClick={() => handleCandidateClick(candidate)}
-                >
-                  <div className="flex flex-col items-center gap-1">
-                    <div
-                      className="w-4 h-4 rounded-full border-2 border-white shadow-lg"
-                      style={{ backgroundColor: candidate.color }}
-                    />
-                    <div className="text-xs whitespace-nowrap font-medium" style={{ 
-                      color: candidate.color,
-                      fontSize: '11px'
-                    }}>
-                      {candidate.label} · {candidate.score}
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
+            )}
           </div>
 
           {/* Location Score Card */}

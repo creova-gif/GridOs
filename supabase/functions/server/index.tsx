@@ -3,6 +3,8 @@ import { cors } from "npm:hono/cors";
 import { logger } from "npm:hono/logger";
 import * as kv from "./kv_store.tsx";
 import { seedCustomers } from "./seed-customers.tsx";
+import * as clickpesa from "./clickpesa.tsx";
+
 const app = new Hono();
 
 // Enable logger
@@ -426,6 +428,246 @@ app.get("/make-server-4719aee2/agent/sync/status", async (c) => {
     console.error("Error getting sync status:", error);
     return c.json({ error: "Failed to get sync status" }, 500);
   }
+});
+
+// ========== CLICKPESA PAYMENT GATEWAY ROUTES ==========
+
+// Initiate mobile money payment via ClickPesa
+app.post("/make-server-4719aee2/payments/clickpesa/initiate", async (c) => {
+  try {
+    const { customerId, amount, provider, phone } = await c.req.json();
+    
+    if (!customerId || !amount || !provider || !phone) {
+      return c.json({ error: "Missing required fields: customerId, amount, provider, phone" }, 400);
+    }
+
+    // Validate provider
+    const validProviders = ['mpesa', 'airtel', 'tigo', 'halopesa'];
+    if (!validProviders.includes(provider.toLowerCase())) {
+      return c.json({ 
+        error: `Invalid provider. Must be one of: ${validProviders.join(', ')}` 
+      }, 400);
+    }
+
+    // Get customer data
+    const customer = await kv.get(`customer:${customerId}`);
+    if (!customer) {
+      return c.json({ error: "Customer not found" }, 404);
+    }
+
+    // Generate unique reference
+    const reference = `GRIDOS-${Date.now()}-${Math.random().toString(36).substr(2, 6).toUpperCase()}`;
+    
+    // Calculate fee (1% per spec)
+    const fee = clickpesa.calculateFee(amount);
+    const totalAmount = amount + fee;
+
+    // Prepare payment request
+    const paymentRequest: clickpesa.PaymentRequest = {
+      amount: totalAmount,
+      currency: 'TZS',
+      phone: phone,
+      provider: provider.toLowerCase() as any,
+      reference: reference,
+      description: `GridOS Token Purchase - ${customer.name} (${customer.meterId})`,
+      callbackUrl: `${Deno.env.get('SUPABASE_URL')}/functions/v1/make-server-4719aee2/webhooks/clickpesa/callback`
+    };
+
+    console.log(`[Payment] Initiating ClickPesa payment for customer ${customerId}: ${clickpesa.formatTZS(totalAmount)} via ${provider}`);
+
+    // Initiate payment through ClickPesa
+    const result = await clickpesa.initiatePayment(paymentRequest);
+
+    if (result.success) {
+      // Store pending payment record
+      const paymentId = `payment_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+      await kv.set(`payment:${paymentId}`, {
+        id: paymentId,
+        customerId,
+        customerName: customer.name,
+        meterId: customer.meterId,
+        amount,
+        fee,
+        totalAmount,
+        provider,
+        phone,
+        reference,
+        clickpesaTransactionId: result.transactionId,
+        status: 'pending',
+        initiatedAt: new Date().toISOString()
+      });
+
+      return c.json({
+        success: true,
+        paymentId,
+        reference,
+        transactionId: result.transactionId,
+        amount,
+        fee,
+        totalAmount,
+        provider,
+        status: 'pending',
+        message: result.message || 'Payment request sent. Please complete on your phone.'
+      });
+    } else {
+      console.error(`[Payment] ClickPesa payment initiation failed:`, result.error);
+      return c.json({
+        success: false,
+        error: result.error || 'Failed to initiate payment',
+        message: result.message
+      }, 400);
+    }
+  } catch (error) {
+    console.error("[Payment] Error initiating ClickPesa payment:", error);
+    return c.json({ error: "Failed to initiate payment" }, 500);
+  }
+});
+
+// ClickPesa webhook callback
+app.post("/make-server-4719aee2/webhooks/clickpesa/callback", async (c) => {
+  try {
+    const body = await c.req.json();
+    const signature = c.req.header('X-Signature') || '';
+
+    console.log('[ClickPesa Webhook] Received callback:', {
+      reference: body.reference,
+      status: body.status,
+      amount: body.amount
+    });
+
+    // Verify webhook signature
+    const isValid = await clickpesa.verifyWebhookSignature(body, signature);
+    if (!isValid) {
+      console.error('[ClickPesa Webhook] Invalid signature');
+      return c.json({ error: 'Invalid signature' }, 401);
+    }
+
+    // Find payment record
+    const allPayments = await kv.getByPrefix("payment:");
+    const payment = allPayments.find((p: any) => 
+      p.reference === body.reference || 
+      p.clickpesaTransactionId === body.transaction_id
+    );
+
+    if (!payment) {
+      console.error(`[ClickPesa Webhook] Payment not found for reference: ${body.reference}`);
+      return c.json({ error: 'Payment not found' }, 404);
+    }
+
+    // Update payment status
+    const updatedPayment = {
+      ...payment,
+      status: body.status,
+      clickpesaResponse: body,
+      completedAt: new Date().toISOString()
+    };
+
+    await kv.set(`payment:${payment.id}`, updatedPayment);
+
+    // If payment successful, credit customer and generate STS token
+    if (body.status === 'success' || body.status === 'completed') {
+      console.log(`[ClickPesa Webhook] Payment successful for ${payment.customerName}: ${clickpesa.formatTZS(payment.amount)}`);
+
+      // Calculate kWh (400 TZS per kWh per spec)
+      const kwhPurchased = payment.amount / 400;
+      
+      // Generate STS token
+      const stsToken = generateSTSToken();
+
+      // Update customer balance
+      const customer = await kv.get(`customer:${payment.customerId}`);
+      if (customer) {
+        const newBalance = (customer.balance || 0) + payment.amount;
+        await kv.set(`customer:${payment.customerId}`, {
+          ...customer,
+          balance: newBalance,
+          lastPayment: new Date().toISOString(),
+          lastPaymentAmount: payment.amount
+        });
+
+        // Create transaction record
+        const transactionId = `txn_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+        await kv.set(`transaction:${transactionId}`, {
+          id: transactionId,
+          customerId: payment.customerId,
+          customerName: payment.customerName,
+          meterId: payment.meterId,
+          amount: payment.amount,
+          paymentMethod: payment.provider,
+          kwhPurchased,
+          stsToken,
+          reference: payment.reference,
+          clickpesaTransactionId: payment.clickpesaTransactionId,
+          timestamp: new Date().toISOString()
+        });
+
+        console.log(`[ClickPesa Webhook] STS token generated for ${payment.customerName}: ${stsToken}`);
+
+        // TODO: Send SMS with STS token via Africa's Talking
+        // await sendSMS(payment.phone, `Your GridOS token: ${stsToken}. Valid for ${kwhPurchased.toFixed(2)} kWh.`);
+      }
+    } else if (body.status === 'failed' || body.status === 'cancelled') {
+      console.log(`[ClickPesa Webhook] Payment ${body.status} for reference: ${body.reference}`);
+    }
+
+    return c.json({ 
+      success: true,
+      message: 'Webhook processed successfully'
+    });
+  } catch (error) {
+    console.error('[ClickPesa Webhook] Error processing callback:', error);
+    return c.json({ error: 'Failed to process webhook' }, 500);
+  }
+});
+
+// Check payment status
+app.get("/make-server-4719aee2/payments/clickpesa/status/:paymentId", async (c) => {
+  try {
+    const paymentId = c.req.param('paymentId');
+    
+    const payment = await kv.get(`payment:${paymentId}`);
+    
+    if (!payment) {
+      return c.json({ error: "Payment not found" }, 404);
+    }
+
+    // Optionally check with ClickPesa API for latest status
+    if (payment.clickpesaTransactionId && payment.status === 'pending') {
+      const statusResult = await clickpesa.checkPaymentStatus(payment.clickpesaTransactionId);
+      if (statusResult.success && statusResult.status !== payment.status) {
+        // Update local status
+        payment.status = statusResult.status;
+        await kv.set(`payment:${paymentId}`, payment);
+      }
+    }
+
+    return c.json({
+      success: true,
+      payment: {
+        id: payment.id,
+        reference: payment.reference,
+        amount: payment.amount,
+        fee: payment.fee,
+        totalAmount: payment.totalAmount,
+        provider: payment.provider,
+        status: payment.status,
+        initiatedAt: payment.initiatedAt,
+        completedAt: payment.completedAt
+      }
+    });
+  } catch (error) {
+    console.error("Error checking payment status:", error);
+    return c.json({ error: "Failed to check payment status" }, 500);
+  }
+});
+
+// Get supported providers
+app.get("/make-server-4719aee2/payments/providers", (c) => {
+  const providers = clickpesa.getSupportedProviders();
+  return c.json({
+    success: true,
+    providers
+  });
 });
 
 // Helper function to generate STS token (mock)
