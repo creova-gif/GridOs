@@ -6,7 +6,7 @@ Real-time monitoring and AI-powered analytics for mini-grid operations in East A
 
 🌍 **Multilingual** - English, Swahili (Kiswahili), French  
 🧠 **AI Insights** - Load forecasting, credit scoring, digital twin, TOU pricing  
-📄 **RBF Reports** - Auto-generate REA Tanzania, World Bank, EWURA, Carbon reports  
+📄 **RBF Reports** - Report templates modeled on REA Tanzania/World Bank/EWURA formats (not verified against the actual agencies — see note below)  
 🗺️ **Site Planning** - Geospatial analysis with WorldPop & Global Solar Atlas  
 
 ## 📊 **7 Complete Pages**
@@ -19,7 +19,7 @@ Real-time monitoring and AI-powered analytics for mini-grid operations in East A
 
 ### Advanced Features:
 - **🧠 AI Insights** (`/ai`) - Load forecast, site health (digital twin), credit scoring, TOU pricing
-- **📄 RBF Reports** (`/reports`) - REA Tanzania, World Bank ESMAP, EWURA, Carbon credits, Productive use
+- **📄 RBF Reports** (`/reports`) - Draft report templates for REA Tanzania, World Bank ESMAP, EWURA, Carbon credits, Productive use — formats are not verified against the real agencies' current submission requirements
 - **🗺️ Site Planning** (`/planning`) - Location scoring, population density, solar resource analysis
 
 ## ⚡ **Real-Time Data**
@@ -244,12 +244,14 @@ Language preference is saved to localStorage and persists across sessions.
 
 ## 📄 RBF Reports
 
-### Auto-Generated Compliance Reports:
+### Report Templates (Unverified)
 
-1. **REA Tanzania** - RBF verification for subsidy claims (up to $400/connection)
-2. **World Bank ESMAP** - Mission 300 universal access tracking
-3. **EWURA** - Tariff review submissions for regulatory approval
-4. **Carbon Credits** - Verra/Gold Standard VCS verification
+⚠️ **These are draft templates styled after the named programs, not certified or agency-approved outputs.** Before relying on any of these for a real subsidy claim or regulatory submission, verify the current format directly with the issuing body.
+
+1. **REA Tanzania** - Draft RBF template for subsidy claims (up to $400/connection)
+2. **World Bank ESMAP** - Draft Mission 300 universal access tracking template
+3. **EWURA** - Draft tariff review submission template
+4. **Carbon Credits** - Draft Verra/Gold Standard VCS-style template
 5. **Productive Use** - Customer identification for appliance financing
 
 ### Requirements:
