@@ -2,6 +2,8 @@
 
 Real-time monitoring and AI-powered analytics for mini-grid operations in East Africa. Built for GridOS development project with multilingual support (English, Swahili, French).
 
+![GridOS dashboard](docs/screenshots/dashboard.png)
+
 ## ✨ **New Features** (March 2026)
 
 🌍 **Multilingual** - English, Swahili (Kiswahili), French  
